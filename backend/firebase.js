@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
@@ -13,14 +13,18 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig);
+// Inicializar Firebase solo si tenemos la API Key (evita errores en Build de Vercel)
+const app = (typeof window !== "undefined" || process.env.NEXT_PUBLIC_FIREBASE_API_KEY)
+  ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig))
+  : null;
 
-// Inicializar servicios
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+// Inicializar servicios con validación de existencia del app
+export const db = app ? getFirestore(app) : null;
+export const auth = app ? getAuth(app) : null;
 
 // Analytics (solo en cliente)
-export const analytics = typeof window !== "undefined" ? isSupported().then(yes => yes ? getAnalytics(app) : null) : null;
+export const analytics = (typeof window !== "undefined" && app)
+  ? isSupported().then(yes => yes ? getAnalytics(app) : null)
+  : null;
 
 export default app;

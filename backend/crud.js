@@ -4,6 +4,7 @@ import {
   getDocs,
   getDoc,
   doc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -145,7 +146,7 @@ export const userActions = {
   create: (uid, data) => {
     // En usuarios solemos usar el UID de Auth como ID del documento
     const docRef = doc(db, "users", uid);
-    return updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
+    return setDoc(docRef, { ...data, updatedAt: serverTimestamp() }, { merge: true });
   },
   getById: (uid) => getDocumentById("users", uid)
 };
@@ -156,15 +157,27 @@ export const diagnosticActions = {
   getAll: () => getDocuments("diagnostics"),
   getByUserId: async (userId) => {
     try {
+      if (!userId) {
+        console.warn("getByUserId: No userId provided");
+        return [];
+      }
+      console.log("Buscando diagnósticos para el usuario:", userId);
       const q = query(
         collection(db, "diagnostics"),
-        where("userId", "==", userId),
-        orderBy("createdAt", "desc")
+        where("userId", "==", userId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log(`Encontrados ${data.length} diagnósticos para ${userId}`);
+
+      // Ordenar por timestamp (ISO string) o por el objeto createdAt de Firestore
+      return data.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || new Date(a.timestamp || 0).getTime() / 1000;
+        const timeB = b.createdAt?.seconds || new Date(b.timestamp || 0).getTime() / 1000;
+        return timeB - timeA;
+      });
     } catch (error) {
-      console.error("Error getting user diagnostics: ", error);
+      console.error("Error en getByUserId:", error);
       throw error;
     }
   },

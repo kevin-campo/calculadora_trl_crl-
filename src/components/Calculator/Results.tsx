@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   RadarChart,
   PolarGrid,
@@ -72,61 +72,144 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
   };
 
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const downloadPDF = async () => {
-    if (!resultsRef.current) return;
+    if (!resultsRef.current || isDownloading) return;
 
+    setIsDownloading(true);
     try {
-      const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-      });
+      const html2pdf = (await import("html2pdf.js")).default;
+      const element = resultsRef.current;
 
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const opt: any = {
+        margin: [10, 10, 10, 10],
+        filename: `${profile.org?.replace(/\s+/g, '_') || "Diagnostico"}_TRL_CRL.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          scrollY: 0,
+          onclone: (clonedDoc: Document) => {
+            // ELIMINAR TODOS LOS ESTILOS EXISTENTES (Esto evita el error de parseo de 'lab' / 'oklch')
+            const styles = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
+            styles.forEach(s => s.remove());
 
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
+            // INYECTAR CSS SEGURO (Solo HEX y RGB estándar)
+            const safeStyle = clonedDoc.createElement('style');
+            safeStyle.innerHTML = `
+              * { box-sizing: border-box; font-family: sans-serif; }
+              #results-content { 
+                width: 850px !important; 
+                padding: 40px !important; 
+                background: #ffffff !important; 
+                color: #1a1a1a !important; 
+              }
+              header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 20px; margin-bottom: 30px; }
+              header h3 { color: #1e3a8a; margin: 0; font-size: 28px; }
+              header p { color: #666; margin: 5px 0 0; }
+              
+              .grid { display: flex; gap: 20px; width: 100%; margin-bottom: 30px; }
+              .grid > div { 
+                flex: 1; 
+                padding: 20px; 
+                border-radius: 12px; 
+                border: 1px solid #e5e7eb; 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+              }
+              .bg-\\[\\#f0f7ff\\] { background-color: #f0f7ff !important; border-color: #dbeafe !important; }
+              .bg-\\[\\#f0fdf4\\] { background-color: #f0fdf4 !important; border-color: #dcfce7 !important; }
+              .text-blue-900 { color: #1e3a8a !important; }
+              .text-blue-600 { color: #2563eb !important; }
+              .text-green-600 { color: #16a34a !important; }
+              
+              .h-16.w-16 { 
+                width: 60px; height: 60px; 
+                background: #2563eb; color: #fff; 
+                display: flex; align-items: center; justify-content: center; 
+                border-radius: 12px; font-weight: bold; font-size: 24px; 
+              }
+              .bg-green-600 { background: #16a34a !important; }
 
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= 297; // A4 height in mm
+              #results-content > div:nth-child(3) { 
+                background: #f9fafb !important; padding: 30px; border: 1px solid #eee; border-radius: 16px; 
+                text-align: center; margin-bottom: 30px;
+              }
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= 297;
-      }
+              .recharts-responsive-container { width: 750px !important; height: 500px !important; display: block !important; margin: 20px auto !important; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #e5e7eb; }
+              th { background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: bold; border-bottom: 2px solid #e5e7eb; }
+              td { padding: 12px; border-bottom: 1px solid #f3f4f6; font-size: 12px; line-height: 1.5; }
+              
+              footer { border-top: 1px solid #eee; padding-top: 20px; margin-top: 40px; text-align: center; }
+              footer p { margin: 2px 0; color: #999; }
+            `;
+            clonedDoc.head.appendChild(safeStyle);
 
-      pdf.save(`${profile.org || "resultado"}-TRL-diagnostico.pdf`);
-    } catch (error) {
-      console.error("Error generando PDF:", error);
-      alert("Error al generar el PDF. Intenta de nuevo.");
+            // Asegurar visibilidad del radar en el clon
+            const chartDiv = clonedDoc.querySelector('.recharts-responsive-container') as HTMLElement;
+            if (chartDiv) {
+              chartDiv.style.display = 'block';
+              chartDiv.style.visibility = 'visible';
+            }
+          }
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+
+    } catch (error: any) {
+      console.error("Error al generar PDF:", error);
+      alert("Para una mejor calidad y evitar errores de compatibilidad, usaremos el asistente de impresión del sistema. \n\nPor favor, selecciona 'Guardar como PDF' en el destino.");
+      window.print();
+    } finally {
+      setIsDownloading(false);
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
     <div className="mt-12 space-y-6">
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-wrap justify-end gap-3 print:hidden">
         <button
           onClick={downloadPDF}
-          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 text-sm"
+          disabled={isDownloading}
+          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 text-sm disabled:opacity-70"
+        >
+          {isDownloading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          )}
+          {isDownloading ? "Generando..." : "Descarga Directa PDF"}
+        </button>
+
+        <button
+          onClick={handlePrint}
+          className="px-6 py-3 bg-gray-600 text-white rounded-xl font-bold hover:bg-gray-700 shadow-lg shadow-gray-200 transition-all flex items-center gap-2 active:scale-95 text-sm"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
-          Descargar Informe PDF
+          Imprimir / Guardar como...
         </button>
       </div>
 
-      <div ref={resultsRef} className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-10 border border-gray-100 text-gray-900">
+      <div
+        ref={resultsRef}
+        id="results-content"
+        className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-10 border border-gray-100 text-gray-900 print:shadow-none print:border-none print:p-0"
+      >
 
         <header className="text-center space-y-2 border-b pb-8">
           <h3 className="text-3xl font-extrabold text-blue-900">Resultados del Diagnóstico</h3>
@@ -135,7 +218,7 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
 
         {/* Niveles de Madurez */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 flex items-center justify-between">
+          <div className="bg-[#f0f7ff] rounded-2xl p-6 border border-blue-100 flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Tecnológica</span>
               <h4 className="font-bold text-lg text-blue-900">Nivel TRL</h4>
@@ -148,7 +231,7 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
             </div>
           </div>
 
-          <div className="bg-green-50/50 rounded-2xl p-6 border border-green-100 flex items-center justify-between">
+          <div className="bg-[#f0fdf4] rounded-2xl p-6 border border-green-100 flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-bold text-green-600 uppercase tracking-widest">Comercial</span>
               <h4 className="font-bold text-lg text-green-900">Nivel CLR</h4>
@@ -163,7 +246,7 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
         </div>
 
         {/* Resumen Total Circular / Card */}
-        <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 text-center relative overflow-hidden group">
+        <div className="bg-[#f9fafb] rounded-2xl p-8 border border-gray-100 text-center relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 -mr-16 -mt-16 rounded-full opacity-50 transition-transform group-hover:scale-110"></div>
           <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Puntaje Global</p>
           <div className="flex items-center justify-center gap-4">
@@ -220,7 +303,7 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
                   const val = answers[q.id];
                   const text = val ? q.options[val - 1] : "-";
                   return (
-                    <tr key={q.id} className="hover:bg-blue-50/20 transition-colors">
+                    <tr key={q.id} className="hover:bg-[#f0f7ff] transition-colors">
                       <td className="px-6 py-4 font-bold text-sm text-gray-800">{q.title}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 leading-relaxed">{text}</td>
                     </tr>

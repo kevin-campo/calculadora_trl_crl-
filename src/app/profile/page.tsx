@@ -29,8 +29,10 @@ const ProfilePage = () => {
 
   const fetchDiagnostics = async () => {
     try {
+      console.log("Iniciando carga de diagnósticos para el usuario:", user.uid);
       const data = await diagnosticActions.getByUserId(user.uid);
-      setDiagnostics(data);
+      console.log("Diagnósticos recibidos:", data);
+      setDiagnostics(data || []);
     } catch (error) {
       console.error("Error al obtener diagnósticos:", error);
     } finally {
@@ -239,7 +241,7 @@ const ProfilePage = () => {
                         </p>
                         <div className="flex flex-wrap gap-4">
                           <Link
-                            href={`/calculator?id=${diag.id}`}
+                            href={`/diagnosis/${diag.id}`}
                             className="bg-primary/5 text-primary hover:bg-primary hover:text-white rounded-sm px-4 py-2 text-sm font-medium transition duration-300"
                           >
                             Ver Detalles

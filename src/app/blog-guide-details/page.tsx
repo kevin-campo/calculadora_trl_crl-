@@ -1,15 +1,9 @@
+"use client";
 import SharePost from "@/components/Blog/SharePost";
 import TagButton from "@/components/Blog/TagButton";
 import Image from "next/image";
 
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Detalles del Blog | Diagnóstico TRL & CRL",
-  description: "Información detallada sobre metodologías de innovación y gestión de proyectos.",
-};
-
-const BlogDetailsPage = () => {
+const BlogGuideDetailsPage = () => {
   return (
     <>
       <section className="pt-[150px] pb-[120px]">
@@ -18,7 +12,7 @@ const BlogDetailsPage = () => {
             <div className="w-full px-4 lg:w-8/12">
               <div>
                 <h2 className="mb-8 text-3xl leading-tight font-bold text-black sm:text-4xl sm:leading-tight dark:text-white">
-                  Entendiendo la escala TRL en proyectos de I+D+i
+                  Guía paso a paso para realizar un diagnóstico de madurez tecnológica
                 </h2>
                 <div className="border-body-color/10 mb-10 flex flex-wrap items-center justify-between border-b pb-4 dark:border-white/10">
                   <div className="flex flex-wrap items-center">
@@ -26,7 +20,7 @@ const BlogDetailsPage = () => {
                       <div className="mr-4">
                         <div className="relative h-10 w-10 overflow-hidden rounded-full">
                           <Image
-                            src="/images/blog/author-02.png"
+                            src="/images/blog/author-03.png"
                             alt="author"
                             fill
                           />
@@ -73,7 +67,7 @@ const BlogDetailsPage = () => {
                             <path d="M11.0529 6.55322H4.69668C4.41543 6.55322 4.19043 6.77822 4.19043 7.05947C4.19043 7.34072 4.41543 7.56572 4.69668 7.56572H11.0811C11.3623 7.56572 11.5873 7.34072 11.5873 7.05947C11.5873 6.77822 11.3342 6.55322 11.0529 6.55322Z" />
                           </svg>
                         </span>
-                        1.2k
+                        800
                       </p>
                       <p className="text-body-color flex items-center text-base font-medium">
                         <span className="mr-3">
@@ -87,226 +81,80 @@ const BlogDetailsPage = () => {
                             <path d="M19.7559 5.625C17.6934 2.375 14.1309 0.4375 10.2559 0.4375C6.38086 0.4375 2.81836 2.375 0.755859 5.625C0.630859 5.84375 0.630859 6.125 0.755859 6.34375C2.81836 9.59375 6.38086 11.5312 10.2559 11.5312C14.1309 11.5312 17.6934 9.59375 19.7559 6.34375C19.9121 6.125 19.9121 5.84375 19.7559 5.625ZM10.2559 10.4375C6.84961 10.4375 3.69336 8.78125 1.81836 5.96875C3.69336 3.1875 6.84961 1.53125 10.2559 1.53125C13.6621 1.53125 16.8184 3.1875 18.6934 5.96875C16.8184 8.78125 13.6621 10.4375 10.2559 10.4375Z" />
                           </svg>
                         </span>
-                        5.8k
+                        3.5k
                       </p>
                     </div>
                   </div>
                   <div className="mb-5">
                     <span className="bg-primary inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white">
-                      Metodología
+                      Guía Práctica
                     </span>
                   </div>
                 </div>
                 <div>
                   <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    La escala TRL (Technology Readiness Level) es un método para estimar la madurez de una tecnología. Fue desarrollada originalmente por la NASA y hoy es el estándar mundial en proyectos de investigación, desarrollo e innovación (I+D+i).
+                    Realizar un diagnóstico preciso es el primer paso para cualquier estrategia de innovación exitosa. En esta guía te mostramos cómo utilizar nuestras herramientas para obtener una radiografía exacta de tu proyecto.
                   </p>
                   <div className="mb-10 w-full overflow-hidden rounded-sm">
                     <div className="relative aspect-97/60 w-full sm:aspect-97/44">
                       <Image
-                        src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop"
-                        alt="tecnología TRL"
+                        src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop"
+                        alt="analítica y diagnóstico"
                         fill
                         className="object-cover object-center"
                       />
                     </div>
-                    <p className="mt-2 text-center text-sm italic text-gray-500">Visualización de prototipado técnico en entorno de laboratorio.</p>
+                    <p className="mt-2 text-center text-sm italic text-gray-500">Uso de datos para evaluar el progreso tecnológico.</p>
                   </div>
+
+                  <h3 className="font-xl mb-6 leading-tight font-bold text-black sm:text-2xl sm:leading-tight lg:text-xl lg:leading-tight xl:text-2xl xl:leading-tight dark:text-white">
+                    Paso 1: Recolección de Evidencias
+                  </h3>
                   <p className="text-body-color mb-8 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    El sistema TRL se divide en 9 niveles que van desde la investigación básica hasta la operación comercial exitosa. Entender en qué nivel se encuentra tu proyecto es crucial para atraer inversión y definir la ruta de salida al mercado.
+                    Antes de usar la calculadora, reúne todos los documentos técnicos, pruebas de laboratorio y validaciones comerciales que certifiquen el estado actual. Sin evidencia, el TRL es solo una opinión.
                   </p>
 
                   <h3 className="font-xl mb-6 leading-tight font-bold text-black sm:text-2xl sm:leading-tight lg:text-xl lg:leading-tight xl:text-2xl xl:leading-tight dark:text-white">
-                    Los 9 Niveles de la Escala TRL
+                    Paso 2: Evaluación Técnica (TRL)
                   </h3>
-
-                  <div className="space-y-6 mb-10">
-                    <div className="border-l-4 border-primary pl-4">
-                      <h4 className="font-bold text-black dark:text-white">Fase de Investigación (TRL 1-3)</h4>
-                      <p className="text-body-color">Desde la observación de principios básicos hasta la prueba de concepto analítica.</p>
-                    </div>
-                    <div className="border-l-4 border-blue-400 pl-4">
-                      <h4 className="font-bold text-black dark:text-white">Fase de Desarrollo (TRL 4-6)</h4>
-                      <p className="text-body-color">Validación de componentes en laboratorio y demostración de prototipos en entornos relevantes.</p>
-                    </div>
-                    <div className="border-l-4 border-green-500 pl-4">
-                      <h4 className="font-bold text-black dark:text-white">Fase de Despliegue (TRL 7-9)</h4>
-                      <p className="text-body-color">Demostración de sistema completo en entorno real y lanzamiento al mercado.</p>
-                    </div>
-                  </div>
+                  <p className="text-body-color mb-8 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
+                    Responde honestamente a las preguntas de nuestra calculadora. Considera si los componentes han sido probados de forma aislada o como sistema integrado.
+                  </p>
 
                   <div className="mb-10 w-full overflow-hidden rounded-sm">
                     <div className="relative aspect-97/60 w-full sm:aspect-97/44">
                       <Image
-                        src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop"
-                        alt="equipo de trabajo innovación"
+                        src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop"
+                        alt="gráficos de datos"
                         fill
                         className="object-cover object-center"
                       />
                     </div>
-                    <p className="mt-2 text-center text-sm italic text-gray-500">Equipos de I+D validando resultados comerciales (CRL) junto al desarrollo técnico.</p>
+                    <p className="mt-2 text-center text-sm italic text-gray-500">Interpretación de resultados para la hoja de ruta.</p>
                   </div>
 
+                  <h3 className="font-xl mb-6 leading-tight font-bold text-black sm:text-2xl sm:leading-tight lg:text-xl lg:leading-tight xl:text-2xl xl:leading-tight dark:text-white">
+                    Paso 3: Análisis de Resultados
+                  </h3>
                   <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    La clave del éxito en la transferencia tecnológica no solo radica en alcanzar un TRL 9, sino en hacerlo de manera coordinada con el nivel de madurez comercial (CRL), asegurando que existe una necesidad real en el mercado para la tecnología desarrollada.
+                    Una vez obtenido el puntaje, revisa las recomendaciones personalizadas. Estas te indicarán qué hitos faltan alcanzar para subir al siguiente nivel de madurez.
                   </p>
+
                   <div className="bg-primary/10 relative z-10 mb-10 overflow-hidden rounded-md p-8 md:p-9 lg:p-8 xl:p-9">
                     <p className="text-body-color text-center text-base font-medium italic">
-                      "La innovación no es solo crear algo nuevo, sino lograr que eso nuevo sea útil y sostenible en el mercado."
+                      "Un diagnóstico correcto ahorra meses de desarrollo en la dirección equivocada."
                     </p>
-                    <span className="absolute top-0 left-0 z-[-1]">
-                      <svg
-                        width="132"
-                        height="109"
-                        viewBox="0 0 132 109"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          opacity="0.5"
-                          d="M33.0354 90.11C19.9851 102.723 -3.75916 101.834 -14 99.8125V-15H132C131.456 -12.4396 127.759 -2.95278 117.318 14.5117C104.268 36.3422 78.7114 31.8952 63.2141 41.1934C47.7169 50.4916 49.3482 74.3435 33.0354 90.11Z"
-                          fill="url(#paint0_linear_111:606)"
-                        />
-                        <path
-                          opacity="0.5"
-                          d="M33.3654 85.0768C24.1476 98.7862 1.19876 106.079 -9.12343 108.011L-38.876 22.9988L100.816 -25.8905C100.959 -23.8126 99.8798 -15.5499 94.4164 0.87754C87.5871 21.4119 61.9822 26.677 49.5641 38.7512C37.146 50.8253 44.8877 67.9401 33.3654 85.0768Z"
-                          fill="url(#paint1_linear_111:606)"
-                        />
-                        <defs>
-                          <linearGradient
-                            id="paint0_linear_111:606"
-                            x1="94.7523"
-                            y1="82.0246"
-                            x2="8.40951"
-                            y2="52.0609"
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop stopColor="white" stopOpacity="0.06" />
-                            <stop
-                              offset="1"
-                              stopColor="white"
-                              stopOpacity="0"
-                            />
-                          </linearGradient>
-                          <linearGradient
-                            id="paint1_linear_111:606"
-                            x1="90.3206"
-                            y1="58.4236"
-                            x2="1.16149"
-                            y2="50.8365"
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop stopColor="white" stopOpacity="0.06" />
-                            <stop
-                              offset="1"
-                              stopColor="white"
-                              stopOpacity="0"
-                            />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    </span>
-                    <span className="absolute right-0 bottom-0 z-[-1]">
-                      <svg
-                        width="53"
-                        height="30"
-                        viewBox="0 0 53 30"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <circle
-                          opacity="0.8"
-                          cx="37.5"
-                          cy="37.5"
-                          r="37.5"
-                          fill="#4A6CF7"
-                        />
-                        <mask
-                          id="mask0_111:596"
-                          style={{ maskType: "alpha" }}
-                          maskUnits="userSpaceOnUse"
-                          x="0"
-                          y="0"
-                          width="75"
-                          height="75"
-                        >
-                          <circle
-                            opacity="0.8"
-                            cx="37.5"
-                            cy="37.5"
-                            r="37.5"
-                            fill="#4A6CF7"
-                          />
-                        </mask>
-                        <g mask="url(#mask0_111:596)">
-                          <circle
-                            opacity="0.8"
-                            cx="37.5"
-                            cy="37.5"
-                            r="37.5"
-                            fill="url(#paint0_radial_111:596)"
-                          />
-                          <g opacity="0.8" filter="url(#filter0_f_111:596)">
-                            <circle
-                              cx="40.8089"
-                              cy="19.853"
-                              r="15.4412"
-                              fill="white"
-                            />
-                          </g>
-                        </g>
-                        <defs>
-                          <filter
-                            id="filter0_f_111:596"
-                            x="4.36768"
-                            y="-16.5881"
-                            width="72.8823"
-                            height="72.8823"
-                            filterUnits="userSpaceOnUse"
-                            colorInterpolationFilters="sRGB"
-                          >
-                            <feFlood
-                              floodOpacity="0"
-                              result="BackgroundImageFix"
-                            />
-                            <feBlend
-                              mode="normal"
-                              in="SourceGraphic"
-                              in2="BackgroundImageFix"
-                              result="shape"
-                            />
-                            <feGaussianBlur
-                              stdDeviation="10.5"
-                              result="effect1_foregroundBlur_111:596"
-                            />
-                          </filter>
-                          <radialGradient
-                            id="paint0_radial_111:596"
-                            cx="0"
-                            cy="0"
-                            r="1"
-                            gradientUnits="userSpaceOnUse"
-                            gradientTransform="translate(37.5 37.5) rotate(90) scale(40.2574)"
-                          >
-                            <stop stopOpacity="0.47" />
-                            <stop offset="1" stopOpacity="0" />
-                          </radialGradient>
-                        </defs>
-                      </svg>
-                    </span>
                   </div>
-                  <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    Nuestra plataforma está diseñada para acompañar a los innovadores en cada etapa del camino, desde la idea hasta el mercado.
-                  </p>
+
                   <div className="items-center justify-between sm:flex">
                     <div className="mb-5">
                       <h4 className="text-body-color mb-3 text-sm font-medium">
                         Etiquetas Populares :
                       </h4>
                       <div className="flex items-center">
+                        <TagButton text="Herramientas" />
+                        <TagButton text="Diagnóstico" />
                         <TagButton text="TRL" />
-                        <TagButton text="CRL" />
-                        <TagButton text="I+D+i" />
                       </div>
                     </div>
                     <div className="mb-5">
@@ -328,4 +176,4 @@ const BlogDetailsPage = () => {
   );
 };
 
-export default BlogDetailsPage;
+export default BlogGuideDetailsPage;

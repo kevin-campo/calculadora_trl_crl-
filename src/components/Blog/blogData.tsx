@@ -3,45 +3,48 @@ import { Blog } from "@/types/blog";
 const blogData: Blog[] = [
   {
     id: 1,
-    title: "Best UI components for modern websites",
+    title: "Entendiendo la escala TRL en proyectos de I+D+i",
     paragraph:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet dictum neque, laoreet dolor.",
+      "Aprende a medir el nivel de madurez técnica de tus innovaciones y cómo avanzar hacia la comercialización.",
     image: "/images/blog/blog-01.jpg",
     author: {
-      name: "Samuyl Joshi",
+      name: "Juan Pérez",
       image: "/images/blog/author-03.png",
-      designation: "Graphic Designer",
+      designation: "Especialista en Innovación",
     },
-    tags: ["creative"],
-    publishDate: "2025",
+    tags: ["TRL", "I+D+i"],
+    publishDate: "2024",
+    link: "/blog-details",
   },
   {
     id: 2,
-    title: "9 simple ways to improve your design skills",
+    title: "Cómo el CRL puede salvar tu startup del valle de la muerte",
     paragraph:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet dictum neque, laoreet dolor.",
+      "Identifica los riesgos comerciales de tu propuesta antes de que sea demasiado tarde mediante el análisis CRL.",
     image: "/images/blog/blog-02.jpg",
     author: {
-      name: "Musharof Chy",
+      name: "María García",
       image: "/images/blog/author-02.png",
-      designation: "Content Writer",
+      designation: "Consultora de Negocios",
     },
-    tags: ["computer"],
-    publishDate: "2025",
+    tags: ["CRL", "Emprendimiento"],
+    publishDate: "2024",
+    link: "/blog-crl-details",
   },
   {
     id: 3,
-    title: "Tips to quickly improve your coding speed.",
+    title: "Guía paso a paso para realizar un diagnóstico de madurez tecnológica",
     paragraph:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet dictum neque, laoreet dolor.",
+      "Te explicamos cómo utilizar nuestra calculadora para obtener los mejores resultados en tu evaluación.",
     image: "/images/blog/blog-03.jpg",
     author: {
-      name: "Lethium Deo",
+      name: "Luis Rodríguez",
       image: "/images/blog/author-03.png",
-      designation: "Graphic Designer",
+      designation: "Ingeniero de Producto",
     },
-    tags: ["design"],
-    publishDate: "2025",
+    tags: ["Guía", "Herramientas"],
+    publishDate: "2024",
+    link: "/blog-guide-details",
   },
 ];
 export default blogData;

@@ -149,3 +149,25 @@ export const userActions = {
   },
   getById: (uid) => getDocumentById("users", uid)
 };
+
+// 8. DIAGNOSTICS (TRL/CRL results)
+export const diagnosticActions = {
+  create: (data) => createDocument("diagnostics", data),
+  getAll: () => getDocuments("diagnostics"),
+  getByUserId: async (userId) => {
+    try {
+      const q = query(
+        collection(db, "diagnostics"),
+        where("userId", "==", userId),
+        orderBy("createdAt", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error("Error getting user diagnostics: ", error);
+      throw error;
+    }
+  },
+  getById: (id) => getDocumentById("diagnostics", id),
+  delete: (id) => deleteDocument("diagnostics", id)
+};

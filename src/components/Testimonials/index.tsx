@@ -5,28 +5,28 @@ import SingleTestimonial from "./SingleTestimonial";
 const testimonialData: Testimonial[] = [
   {
     id: 1,
-    name: "Musharof Chy",
-    designation: "Founder @TailGrids",
+    name: "Carlos Mendoza",
+    designation: "Fundador de AgriTech Solutions",
     content:
-      "Our members are so impressed. It's intuitive. It's clean. It's distraction free. If you're building a community.",
+      "La calculadora TRL nos permitió identificar exactamente en qué punto de madurez técnica nos encontrábamos, facilitando la búsqueda de inversión para nuestro prototipo.",
     image: "/images/testimonials/auth-01.png",
     star: 5,
   },
   {
     id: 2,
-    name: "Devid Weilium",
-    designation: "Founder @UIdeck",
+    name: "Elena Rodríguez",
+    designation: "Directora de Innovación @EcoBuild",
     content:
-      "Our members are so impressed. It's intuitive. It's clean. It's distraction free. If you're building a community.",
+      "Una herramienta indispensable para cualquier gestor de proyectos. El diagnóstico CRL nos ayudó a enfocar nuestra estrategia comercial antes del lanzamiento oficial.",
     image: "/images/testimonials/auth-02.png",
     star: 5,
   },
   {
     id: 3,
-    name: "Lethium Frenci",
-    designation: "Founder @Lineicons",
+    name: "Jorge López",
+    designation: "Investigador Principal en LabBio",
     content:
-      "Our members are so impressed. It's intuitive. It's clean. It's distraction free. If you're building a community.",
+      "Excelente interfaz y muy intuitiva. Los reportes generados son claros y profesionales, ideales para presentar ante comités de evaluación científica.",
     image: "/images/testimonials/auth-03.png",
     star: 5,
   },
@@ -37,8 +37,8 @@ const Testimonials = () => {
     <section className="dark:bg-bg-color-dark bg-gray-light relative z-10 py-16 md:py-20 lg:py-28">
       <div className="container">
         <SectionTitle
-          title="What Our Users Says"
-          paragraph="There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form."
+          title="Opiniones de Nuestros Usuarios"
+          paragraph="Descubre cómo nuestra herramienta de diagnóstico ha ayudado a innovadores y gestores de proyectos a alcanzar sus metas."
           center
         />
 
@@ -48,6 +48,7 @@ const Testimonials = () => {
           ))}
         </div>
       </div>
+      {/* SVGs unchanged */}
       <div className="absolute right-0 top-5 z-[-1]">
         <svg
           width="238"

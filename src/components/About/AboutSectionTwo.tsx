@@ -28,7 +28,7 @@ const AboutSectionTwo = () => {
                   Metodología Probada
                 </h3>
                 <p className="text-base font-medium leading-relaxed text-body-color sm:text-lg sm:leading-relaxed">
-                  Nuestra herramienta utiliza parámetros adaptados de organizaciones líderes como la **NASA**, la **Unión Europea (Horizonte 2020)** y **NYSERDA**. Esto garantiza que los resultados obtenidos tengan validez técnica y sean comparables a estándares internacionales.
+                  Nuestra herramienta utiliza parámetros adaptados de organizaciones líderes como la NASA, la Unión Europea (Horizonte 2020) y NYSERDA. Esto garantiza que los resultados obtenidos tengan validez técnica y sean comparables a estándares internacionales.
                 </p>
               </div>
               <div className="mb-9">

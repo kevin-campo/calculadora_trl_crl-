@@ -14,108 +14,126 @@ const AboutSectionOne = () => {
         {checkIcon}
       </span>
       <span>
-        {boldText && <strong className="text-black">{boldText}: </strong>}
+        {boldText && <span className="text-black font-bold">{boldText}: </span>}
         {text}
       </span>
     </div>
   );
 
   return (
-    <section id="about" className="pt-16 md:pt-20 lg:pt-28 bg-[#f9fcff]">
+    <section id="about" className="pt-24 md:pt-32 lg:pt-40 bg-[#f9fcff]">
       <div className="container">
         <div className="pb-16 md:pb-20 lg:pb-28">
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
 
             {/* TRL Column */}
-            <div className="bg-white p-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-blue-50/50 h-full transition-transform hover:-translate-y-1">
-              <div className="mb-6">
-                <span className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block border border-blue-100">
-                  Tecnología
+            <div className="bg-white p-8 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-blue-50/50 h-full flex flex-col transition-all hover:shadow-xl group">
+              <div className="mb-6 flex-1">
+                <span className="bg-blue-50 text-blue-600 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block border border-blue-100">
+                  Madurez Tecnológica
                 </span>
-                <h3 className="text-2xl font-bold text-[#090e34] mb-4">¿Qué es el TRL?</h3>
-                <p className="text-body-color text-base leading-relaxed mb-6">
-                  El **TRL (Technology Readiness Level)** es una escala global utilizada para medir la madurez de una tecnología durante sus fases de desarrollo.
-                  Fue concebida por la NASA en los años 70 para gestionar el riesgo tecnológico en misiones espaciales.
+                <h3 className="text-2xl font-bold text-[#090e34] mb-4 group-hover:text-primary transition-colors">¿Qué es el TRL?</h3>
+                <p className="text-body-color text-base leading-relaxed mb-8">
+                  El TRL (Technology Readiness Level) es una escala global utilizada para medir la madurez de una tecnología durante sus fases de desarrollo, facilitando la gestión de riesgos técnicos.
                 </p>
-                <div className="space-y-4 mb-8">
-                  <List boldText="Niveles 1-3" text="Investigación básica y formulación del concepto." />
-                  <List boldText="Niveles 4-6" text="Desarrollo de prototipos y validación simulada." />
-                  <List boldText="Niveles 7-9" text="Demostración en entorno real y certificación." />
-                </div>
 
-                {/* TRL Image Placeholder */}
-                <div className="relative w-full aspect-[2/1] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 mt-auto">
+                {/* TRL Image */}
+                <div className="mb-10 relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-gray-100 shadow-inner bg-[#fcfdfe]">
                   <Image
-                    src="/images/about/trl-scale.png"
+                    src="/images/crl_trl/trl.jpg"
                     alt="Escala TRL"
                     fill
-                    className="object-contain p-2"
+                    className="object-contain p-2 transition-transform duration-700 group-hover:scale-105"
                   />
+                </div>
+
+                <div className="space-y-5">
+                  <List boldText="Niveles 1-3" text="Investigación básica y formulación científica del concepto inicial." />
+                  <List boldText="Niveles 4-6" text="Desarrollo de prototipos y validación en entornos controlados." />
+                  <List boldText="Niveles 7-9" text="Demostración en entornos reales, certificación y operatividad final." />
                 </div>
               </div>
             </div>
 
             {/* CRL Column */}
-            <div className="bg-white p-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-green-50/50 h-full transition-transform hover:-translate-y-1">
-              <div className="mb-6 flex flex-col h-full">
-                <div>
-                  <span className="bg-green-50 text-green-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block border border-green-100">
-                    Comercialización
-                  </span>
-                  <h3 className="text-2xl font-bold text-[#090e34] mb-4">¿Qué es el CRL?</h3>
-                  <p className="text-body-color text-base leading-relaxed mb-6">
-                    El **CRL (Commercial Readiness Level)** evalúa qué tan preparada está una tecnología para generar ingresos y escalar comercialmente.
-                  </p>
-                  <div className="space-y-4 mb-8">
-                    <List boldText="Nivel 1" text="Identificación de la necesidad y propuesta inicial." />
-                    <List boldText="Nivel 3" text="Validación con Early Adopters." />
-                    <List boldText="Nivel 5" text="Modelo probado y listo para expansión." />
-                  </div>
-                </div>
+            <div className="bg-white p-8 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-green-50/50 h-full flex flex-col transition-all hover:shadow-xl group">
+              <div className="mb-6 flex-1">
+                <span className="bg-green-50 text-green-600 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block border border-green-100">
+                  Madurez Comercial
+                </span>
+                <h3 className="text-2xl font-bold text-[#090e34] mb-4 group-hover:text-green-600 transition-colors">¿Qué es el CRL?</h3>
+                <p className="text-body-color text-base leading-relaxed mb-8">
+                  El CRL (Commercial Readiness Level) evalúa la preparación de una tecnología para generar valor sostenible y escalar con éxito en mercados competitivos.
+                </p>
 
-                {/* CRL Image Placeholder */}
-                <div className="relative w-full aspect-[1/1.2] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 mt-auto">
+                {/* CRL Image */}
+                <div className="mb-10 relative w-full aspect-[4/5] max-h-[400px] rounded-2xl overflow-hidden border border-gray-100 shadow-inner bg-[#fcfdfe] mx-auto">
                   <Image
-                    src="/images/about/crl-scale.png"
+                    src="/images/crl_trl/crl.jpg"
                     alt="Escala CRL"
                     fill
-                    className="object-contain p-4"
+                    className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
                   />
+                </div>
+
+                <div className="space-y-5">
+                  <List boldText="Nivel 1" text="Identificación de la necesidad del mercado y propuesta de valor única." />
+                  <List boldText="Nivel 3" text="Validación directa con clientes potenciales y adoptadores tempranos." />
+                  <List boldText="Nivel 5" text="Modelo de negocio validado y preparación para expansión comercial." />
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Sinergy Section */}
-          <div className="bg-[#1d2144] rounded-3xl p-10 md:p-16 text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 -mr-32 -mt-32 rounded-full blur-[100px]"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 -ml-32 -mb-32 rounded-full blur-[100px]"></div>
-
-            <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
-              <div className="text-left">
-                <h4 className="text-3xl font-bold mb-6">Sinergia Estratégica</h4>
-                <p className="text-blue-100/90 text-lg leading-relaxed mb-6">
-                  Muchos proyectos mueren en el famoso <strong className="text-white font-extrabold uppercase tracking-wide">"Valle de la Muerte"</strong>. Nuestra evaluación combinada te ayuda a cruzar este puente vinculando el desarrollo técnico con hitos comerciales reales.
+          {/* Sinergy Section - Redesigned */}
+          <div className="bg-[#1d2144] rounded-[40px] p-10 md:p-20 text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 -mr-48 -mt-48 rounded-full blur-[120px]"></div>
+            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-16">
+              <div className="lg:w-3/5 text-left">
+                <div className="w-16 h-1 bg-primary mb-8 rounded-full"></div>
+                <h4 className="text-4xl font-bold mb-8 tracking-tight">Estrategia de Valor Integral</h4>
+                <p className="text-blue-100/80 text-xl leading-relaxed mb-10">
+                  Nuestra metodología ayuda a reducir la brecha del Valle de la Muerte, asegurando que la excelencia tecnológica se traduzca en una solución de mercado exitosa.
                 </p>
-                <div className="flex flex-wrap gap-4">
-                  <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-md">Reducción de Riesgo</span>
-                  <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-md">Atracción de Inversión</span>
-                  <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-md">Time-to-Market</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+                    <span className="block text-primary font-bold mb-1">Impacto</span>
+                    <p className="text-sm text-blue-100/60">Reducción drástica del riesgo operativo.</p>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+                    <span className="block text-primary font-bold mb-1">Escala</span>
+                    <p className="text-sm text-blue-100/60">Atracción de inversión inteligente.</p>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+                    <span className="block text-primary font-bold mb-1">Visión</span>
+                    <p className="text-sm text-blue-100/60">Optimización del tiempo al mercado.</p>
+                  </div>
                 </div>
               </div>
-              <div className="bg-white/5 p-8 rounded-2xl backdrop-blur-md border border-white/10">
-                <h5 className="font-bold mb-4 flex items-center gap-2 text-blue-300">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" /></svg>
-                  Conceptos Relevantes
-                </h5>
-                <ul className="space-y-3 text-sm text-blue-100/80">
-                  <li>• <strong className="text-white">SINACYT</strong>: Sistema Nacional de Ciencia, Tecnología e Innovación.</li>
-                  <li>• <strong className="text-white">MVP</strong>: Producto Mínimo Viable para validación técnica rápida.</li>
-                  <li>• <strong className="text-white">Entorno Relevante</strong>: Condiciones que simulan el uso real.</li>
-                  <li>• <strong className="text-white">Spin-off</strong>: Alianzas para comercializar resultados de investigación.</li>
-                </ul>
+
+              <div className="lg:w-2/5 w-full">
+                <div className="bg-white/[0.03] p-10 rounded-[32px] backdrop-blur-xl border border-white/10 shadow-inner">
+                  <h5 className="font-bold text-xl mb-6 text-white flex items-center gap-3">
+                    <span className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-sm">ⓘ</span>
+                    Glosario de Innovación
+                  </h5>
+                  <ul className="space-y-6">
+                    <li className="group">
+                      <strong className="text-white block mb-1 group-hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4">SINACYT</strong>
+                      <p className="text-sm text-blue-100/60 leading-relaxed">Sistema Nacional de Ciencia, Tecnología e Innovación.</p>
+                    </li>
+                    <li className="group">
+                      <strong className="text-white block mb-1 group-hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4">MVP</strong>
+                      <p className="text-sm text-blue-100/60 leading-relaxed">Producto Mínimo Viable para validación real inmediata.</p>
+                    </li>
+                    <li className="group">
+                      <strong className="text-white block mb-1 group-hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4">Valle de la Muerte</strong>
+                      <p className="text-sm text-blue-100/60 leading-relaxed">Fase crítica entre el desarrollo y la comercialización.</p>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>

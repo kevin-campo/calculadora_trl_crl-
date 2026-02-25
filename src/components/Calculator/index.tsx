@@ -2,6 +2,10 @@
 import React, { useState, useEffect } from "react";
 import Question from "./Question";
 import Results from "./Results";
+import { diagnosticActions } from "@/../backend/crud";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
+
 
 const QUESTIONS = [
   {
@@ -84,36 +88,16 @@ const QUESTIONS = [
 ];
 
 const Calculator: React.FC = () => {
+  const { user } = useAuth();
   const [profile, setProfile] = useState({ org: "", title: "", description: "" });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [currentStep, setCurrentStep] = useState(0); // 0: Profile, 1-N: Questions, N+1: Summary/Results
   const [answers, setAnswers] = useState<Record<string, number | null>>(() => {
-    try {
-      const raw = typeof window !== "undefined" ? localStorage.getItem("trl_answers") : null;
-      if (raw) return JSON.parse(raw);
-    } catch (e) { }
     const initial: Record<string, number | null> = {};
     QUESTIONS.forEach((q) => (initial[q.id] = null));
     return initial;
   });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("trl_answers", JSON.stringify(answers));
-    } catch (e) { }
-  }, [answers]);
-
-  useEffect(() => {
-    try {
-      const raw = typeof window !== "undefined" ? localStorage.getItem("trl_profile") : null;
-      if (raw) setProfile(JSON.parse(raw));
-    } catch (e) { }
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("trl_profile", JSON.stringify(profile));
-    } catch (e) { }
-  }, [profile]);
 
   const handleAnswer = (id: string, v: number) => {
     setAnswers((s) => ({ ...s, [id]: v }));
@@ -137,6 +121,27 @@ const Calculator: React.FC = () => {
     return { total, max, pct };
   };
 
+  const saveToDatabase = async () => {
+    if (saveStatus === "success") return;
+    setIsSaving(true);
+    try {
+      const summary = calculate();
+      await diagnosticActions.create({
+        userId: user?.uid || "anonymous",
+        profile,
+        answers,
+        summary,
+        timestamp: new Date().toISOString()
+      });
+      setSaveStatus("success");
+    } catch (e) {
+      console.error("Error saving to DB:", e);
+      setSaveStatus("error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const downloadCSV = () => {
     const rows: string[][] = [];
     rows.push(["Pregunta", "Selección (1-5)", "Texto respuesta"]);
@@ -158,7 +163,13 @@ const Calculator: React.FC = () => {
   };
 
   const nextStep = () => {
-    if (currentStep < QUESTIONS.length + 1) setCurrentStep(currentStep + 1);
+    if (currentStep < QUESTIONS.length + 1) {
+      const next = currentStep + 1;
+      setCurrentStep(next);
+      if (next === QUESTIONS.length + 1) {
+        saveToDatabase();
+      }
+    }
   };
 
   const prevStep = () => {
@@ -167,6 +178,16 @@ const Calculator: React.FC = () => {
 
   const totalSteps = QUESTIONS.length + 1; // Profile + Questions
   const progress = (currentStep / totalSteps) * 100;
+
+  const canGoNext = () => {
+    if (currentStep === 0) {
+      return profile.org.trim() !== "" && profile.title.trim() !== "";
+    }
+    if (currentStep > 0 && currentStep <= QUESTIONS.length) {
+      return answers[QUESTIONS[currentStep - 1].id] !== null;
+    }
+    return true;
+  };
 
   return (
     <section id="calculator" className="py-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
@@ -206,16 +227,16 @@ const Calculator: React.FC = () => {
               <h3 className="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Información del Proyecto</h3>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium">Nombre de la organización</label>
+                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium italic">Nombre de la organización (Requerido)</label>
                   <input
-                    placeholder="Ej. Mi Startup S.A."
+                    placeholder="Ej. InnovaTech S.A.S."
                     value={profile.org}
                     onChange={(e) => setProfile((p) => ({ ...p, org: e.target.value }))}
                     className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium">Título de la propuesta</label>
+                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium italic">Título de la propuesta (Requerido)</label>
                   <input
                     placeholder="Ej. Sistema de Purificación de Agua"
                     value={profile.title}
@@ -224,7 +245,7 @@ const Calculator: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium">Descripción del producto/innovación</label>
+                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium">Descripción del producto/innovación (Opcional)</label>
                   <textarea
                     rows={4}
                     placeholder="Escribe una breve descripción..."
@@ -263,7 +284,36 @@ const Calculator: React.FC = () => {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">¡Diagnóstico Completado!</h3>
-                <p className="text-gray-600 mb-8">Has respondido todas las dimensiones. Revisa tus resultados a continuación.</p>
+                <p className="text-gray-600 mb-4">Has respondido todas las dimensiones. Revisa tus resultados a continuación.</p>
+
+                {/* Status DB Message */}
+                <div className="mb-8">
+                  {isSaving && (
+                    <div className="inline-flex items-center gap-2 text-blue-600 font-medium animate-pulse">
+                      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Guardando en base de datos...
+                    </div>
+                  )}
+                  {saveStatus === "success" && (
+                    <div className="inline-flex items-center gap-2 text-green-600 font-medium">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Información guardada exitosamente
+                    </div>
+                  )}
+                  {saveStatus === "error" && (
+                    <div className="inline-flex items-center gap-2 text-red-600 font-medium">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      Error al guardar. Tu descarga local aún es válida.
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex flex-wrap justify-center gap-4">
                   <button
@@ -272,6 +322,12 @@ const Calculator: React.FC = () => {
                   >
                     Descargar CSV
                   </button>
+                  <Link
+                    href="/profile"
+                    className="px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all active:scale-95 text-center flex items-center"
+                  >
+                    Ver en mi Perfil
+                  </Link>
                   <button
                     onClick={reset}
                     className="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all active:scale-95"
@@ -289,8 +345,8 @@ const Calculator: React.FC = () => {
               disabled={currentStep === 0}
               onClick={prevStep}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${currentStep === 0
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-gray-100 active:scale-95"
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:bg-gray-100 active:scale-95"
                 }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -301,8 +357,12 @@ const Calculator: React.FC = () => {
 
             {currentStep < QUESTIONS.length + 1 && (
               <button
+                disabled={!canGoNext()}
                 onClick={nextStep}
-                className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95"
+                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg ${!canGoNext()
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
+                  : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200 active:scale-95"
+                  }`}
               >
                 {currentStep === QUESTIONS.length ? "Ver Resultados" : "Siguiente"}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

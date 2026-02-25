@@ -7,9 +7,8 @@ import Image from "next/image";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog Details Page | Free Next.js Template for Startup and SaaS",
-  description: "This is Blog Details Page for Startup Nextjs Template",
-  // other metadata
+  title: "Detalles del Blog | Diagnóstico TRL & CRL",
+  description: "Explora artículos detallados sobre la madurez tecnológica y comercial de tus proyectos.",
 };
 
 const BlogSidebarPage = () => {
@@ -21,8 +20,7 @@ const BlogSidebarPage = () => {
             <div className="w-full px-4 lg:w-8/12">
               <div>
                 <h1 className="mb-8 text-3xl leading-tight font-bold text-black sm:text-4xl sm:leading-tight dark:text-white">
-                  10 amazing sites to download stock photos & digital assets for
-                  free
+                  Metodologías de Madurez Tecnológica y Comercial para la Innovación
                 </h1>
                 <div className="border-body-color/10 mb-10 flex flex-wrap items-center justify-between border-b pb-4 dark:border-white/10">
                   <div className="flex flex-wrap items-center">
@@ -38,7 +36,7 @@ const BlogSidebarPage = () => {
                       </div>
                       <div className="w-full">
                         <span className="text-body-color mb-1 text-base font-medium">
-                          By <span> Musharof Chy</span>
+                          Por <span>Equipo TRL & CRL</span>
                         </span>
                       </div>
                     </div>
@@ -106,9 +104,7 @@ const BlogSidebarPage = () => {
                 </div>
                 <div>
                   <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat.
+                    Comprender los niveles de madurez es fundamental para cualquier proyecto que busque impactar en el mercado real.
                   </p>
                   <div className="mb-10 w-full overflow-hidden rounded-sm">
                     <div className="relative aspect-97/60 w-full sm:aspect-97/44">
@@ -121,56 +117,34 @@ const BlogSidebarPage = () => {
                     </div>
                   </div>
                   <p className="text-body-color mb-8 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Quis enim lobortis scelerisque fermentum. Neque
-                    sodales ut etiam sit amet. Ligula ullamcorper
-                    <strong className="text-primary dark:text-white">
-                      {" "}
-                      malesuada{" "}
-                    </strong>
-                    proin libero nunc consequat interdum varius. Quam
-                    pellentesque nec nam aliquam sem et tortor consequat.
-                    Pellentesque adipiscing commodo elit at imperdiet.
+                    La escala TRL permite evaluar qué tan cerca está una tecnología de ser utilizada en un entorno real, mientras que la escala CRL se enfoca en la viabilidad del negocio.
                   </p>
                   <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    Semper auctor neque vitae tempus quam pellentesque nec.
-                    <span className="text-primary underline dark:text-white">
-                      {" "}
-                      Amet dictum sit amet justo{" "}
-                    </span>
-                    donec enim diam. Varius sit amet mattis vulputate enim nulla
-                    aliquet porttitor. Odio pellentesque diam volutpat commodo
-                    sed.
+                    Es vital realizar un seguimiento constante de los avances técnicos para no perder de vista los objetivos comerciales, asegurando una transición fluida entre etapas.
                   </p>
                   <h3 className="font-xl mb-10 leading-tight font-bold text-black sm:text-2xl sm:leading-tight lg:text-xl lg:leading-tight xl:text-2xl xl:leading-tight dark:text-white">
-                    Digital marketplace for Ui/Ux designers.
+                    El Mercado de Innovación Digital
                   </h3>
                   <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    consectetur adipiscing elit in voluptate velit esse cillum
-                    dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                    mattis vulputate cupidatat.
+                    La implementación de estas herramientas permite una mejor toma de decisiones basada en datos reales de madurez.
                   </p>
                   <ul className="text-body-color mb-10 list-inside list-disc">
                     <li className="text-body-color mb-2 text-base font-medium sm:text-lg lg:text-base xl:text-lg">
-                      Consectetur adipiscing elit in voluptate velit.
+                      Validación técnica rigurosa.
                     </li>
                     <li className="text-body-color mb-2 text-base font-medium sm:text-lg lg:text-base xl:text-lg">
-                      Mattis vulputate cupidatat.
+                      Análisis de mercado objetivo.
                     </li>
                     <li className="text-body-color mb-2 text-base font-medium sm:text-lg lg:text-base xl:text-lg">
-                      Vulputate enim nulla aliquet porttitor odio pellentesque
+                      Estrategias de escalado eficientes.
                     </li>
                     <li className="text-body-color mb-2 text-base font-medium sm:text-lg lg:text-base xl:text-lg">
-                      Ligula ullamcorper malesuada proin
+                      Acompañamiento en el registro de propiedad.
                     </li>
                   </ul>
                   <div className="bg-primary/10 relative z-10 mb-10 overflow-hidden rounded-md p-8 md:p-9 lg:p-8 xl:p-9">
                     <p className="text-body-color text-center text-base font-medium italic">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod incididunt utionals labore et dolore magna
-                      aliqua. Quis lobortis scelerisque fermentum, The Neque ut
-                      etiam sit amet.
+                      "La madurez no es un destino, sino un proceso continuo de validación y aprendizaje que separa las ideas de los productos reales."
                     </p>
                     <span className="absolute top-0 left-0 z-[-1]">
                       <svg
@@ -314,24 +288,22 @@ const BlogSidebarPage = () => {
                     </span>
                   </div>
                   <p className="text-body-color mb-10 text-base leading-relaxed font-medium sm:text-lg sm:leading-relaxed lg:text-base lg:leading-relaxed xl:text-lg xl:leading-relaxed">
-                    consectetur adipiscing elit in voluptate velit esse cillum
-                    dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                    mattis vulputate cupidatat.
+                    Asegúrate de que tu roadmap tecnológico esté alineado con las necesidades reales de tus clientes para maximizar las probabilidades de éxito.
                   </p>
                   <div className="items-center justify-between sm:flex">
                     <div className="mb-5">
                       <h4 className="text-body-color mb-3 text-sm font-medium">
-                        Popular Tags :
+                        Etiquetas :
                       </h4>
                       <div className="flex items-center">
-                        <TagButton text="Design" />
-                        <TagButton text="Development" />
-                        <TagButton text="Info" />
+                        <TagButton text="TRL" />
+                        <TagButton text="CRL" />
+                        <TagButton text="Innovación" />
                       </div>
                     </div>
                     <div className="mb-5">
                       <h5 className="text-body-color mb-3 text-sm font-medium sm:text-right">
-                        Share this post :
+                        Compartir :
                       </h5>
                       <div className="flex items-center sm:justify-end">
                         <SharePost />
@@ -346,7 +318,7 @@ const BlogSidebarPage = () => {
                 <div className="flex items-center justify-between">
                   <input
                     type="text"
-                    placeholder="Search here..."
+                    placeholder="Buscar aquí..."
                     className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color focus:border-primary dark:focus:border-primary mr-4 w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:focus:shadow-none"
                   />
                   <button
@@ -370,7 +342,7 @@ const BlogSidebarPage = () => {
               </div>
               <div className="shadow-three dark:bg-gray-dark mb-10 rounded-xs bg-white dark:shadow-none">
                 <h3 className="border-body-color/10 border-b px-8 py-4 text-lg font-semibold text-black dark:border-white/10 dark:text-white">
-                  Related Posts
+                  Artículos Relacionados
                 </h3>
                 <ul className="p-8">
                   <li className="border-body-color/10 mb-6 border-b pb-6 dark:border-white/10">
@@ -401,7 +373,7 @@ const BlogSidebarPage = () => {
               </div>
               <div className="shadow-three dark:bg-gray-dark mb-10 rounded-xs bg-white dark:shadow-none">
                 <h3 className="border-body-color/10 border-b px-8 py-4 text-lg font-semibold text-black dark:border-white/10 dark:text-white">
-                  Popular Category
+                  Categorías Populares
                 </h3>
                 <ul className="px-8 py-6">
                   <li>
@@ -409,7 +381,7 @@ const BlogSidebarPage = () => {
                       href="#0"
                       className="text-body-color hover:text-primary mb-3 inline-block text-base font-medium"
                     >
-                      Tailwind Templates
+                      Madurez Tecnológica
                     </a>
                   </li>
                   <li>
@@ -417,7 +389,7 @@ const BlogSidebarPage = () => {
                       href="#0"
                       className="text-body-color hover:text-primary mb-3 inline-block text-base font-medium"
                     >
-                      Landing page
+                      Madurez Comercial
                     </a>
                   </li>
                   <li>
@@ -425,7 +397,7 @@ const BlogSidebarPage = () => {
                       href="#0"
                       className="text-body-color hover:text-primary mb-3 inline-block text-base font-medium"
                     >
-                      Startup
+                      Gestión de I+D+i
                     </a>
                   </li>
                   <li>
@@ -433,7 +405,7 @@ const BlogSidebarPage = () => {
                       href="#0"
                       className="text-body-color hover:text-primary mb-3 inline-block text-base font-medium"
                     >
-                      Business
+                      Propiedad Intelectual
                     </a>
                   </li>
                   <li>
@@ -441,21 +413,21 @@ const BlogSidebarPage = () => {
                       href="#0"
                       className="text-body-color hover:text-primary mb-3 inline-block text-base font-medium"
                     >
-                      Multipurpose
+                      Transferencia Tecnológica
                     </a>
                   </li>
                 </ul>
               </div>
               <div className="shadow-three dark:bg-gray-dark mb-10 rounded-xs bg-white dark:shadow-none">
                 <h3 className="border-body-color/10 border-b px-8 py-4 text-lg font-semibold text-black dark:border-white/10 dark:text-white">
-                  Popular Tags
+                  Etiquetas Populares
                 </h3>
                 <div className="flex flex-wrap px-8 py-6">
-                  <TagButton text="Themes" />
-                  <TagButton text="UI Kit" />
-                  <TagButton text="Tailwind" />
-                  <TagButton text="Startup" />
-                  <TagButton text="Business" />
+                  <TagButton text="TRL" />
+                  <TagButton text="CRL" />
+                  <TagButton text="Innovación" />
+                  <TagButton text="Patentes" />
+                  <TagButton text="Inversión" />
                 </div>
               </div>
 

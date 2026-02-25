@@ -8,67 +8,118 @@ const checkIcon = (
 );
 
 const AboutSectionOne = () => {
-  const List = ({ text }) => (
-    <p className="text-body-color mb-5 flex items-center text-lg font-medium">
-      <span className="bg-primary/10 text-primary mr-4 flex h-[30px] w-[30px] items-center justify-center rounded-md">
+  const List = ({ text, boldText = "" }) => (
+    <div className="text-body-color mb-4 flex items-start text-base font-medium leading-relaxed">
+      <span className="bg-primary/10 text-primary mr-3 mt-1 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md">
         {checkIcon}
       </span>
-      {text}
-    </p>
+      <span>
+        {boldText && <strong className="text-black">{boldText}: </strong>}
+        {text}
+      </span>
+    </div>
   );
 
   return (
-    <section id="about" className="pt-16 md:pt-20 lg:pt-28">
+    <section id="about" className="pt-16 md:pt-20 lg:pt-28 bg-[#f9fcff]">
       <div className="container">
-        <div className="border-b border-body-color/[.15] pb-16 dark:border-white/[.15] md:pb-20 lg:pb-28">
-          <div className="-mx-4 flex flex-wrap items-center">
-            <div className="w-full px-4 lg:w-1/2">
-              <SectionTitle
-                title="¿Que es un TRL?"
-                paragraph="El TRL (Technology Readiness Level), o Nivel de Madurez Tecnológica, es una metodología estandarizada que permite evaluar de forma sistemática el grado de desarrollo, validación y confiabilidad de una tecnología, producto o innovación. Su propósito principal es identificar en qué etapa del ciclo de vida tecnológico se encuentra un proyecto, desde una idea inicial hasta una solución completamente implementada y operativa en un entorno real.
-                Este modelo fue desarrollado originalmente por la NASA y posteriormente adoptado y adaptado por diferentes organismos internacionales como la Unión Europea (Horizonte 2020) y NYSERDA, debido a su utilidad para la gestión de proyectos de investigación, desarrollo e innovación (I+D+i)."
-                mb="44px"
-              />
+        <div className="pb-16 md:pb-20 lg:pb-28">
 
-              <div
-                className="mb-12 max-w-[570px] lg:mb-0"
-                data-wow-delay=".15s"
-              >
-                <div className="mx-[-12px] flex flex-wrap">
-                  <div className="w-full px-3 sm:w-1/2 lg:w-full xl:w-1/2">
-                    <List text="Escala internacional TRL" />
-                    <List text="Evaluación paso a paso" />
-                    <List text="Resultados confiables" />
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
 
-                  <div className="w-full px-3 sm:w-1/2 lg:w-full xl:w-1/2">
-                    <List text="Apta para empresas y academia" />
-                    <List text="Enfoque en I+D" />
-                    <List text="Complemento comercial (CRL)" />
-                  </div>
+            {/* TRL Column */}
+            <div className="bg-white p-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-blue-50/50 h-full transition-transform hover:-translate-y-1">
+              <div className="mb-6">
+                <span className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block border border-blue-100">
+                  Tecnología
+                </span>
+                <h3 className="text-2xl font-bold text-[#090e34] mb-4">¿Qué es el TRL?</h3>
+                <p className="text-body-color text-base leading-relaxed mb-6">
+                  El **TRL (Technology Readiness Level)** es una escala global utilizada para medir la madurez de una tecnología durante sus fases de desarrollo.
+                  Fue concebida por la NASA en los años 70 para gestionar el riesgo tecnológico en misiones espaciales.
+                </p>
+                <div className="space-y-4 mb-8">
+                  <List boldText="Niveles 1-3" text="Investigación básica y formulación del concepto." />
+                  <List boldText="Niveles 4-6" text="Desarrollo de prototipos y validación simulada." />
+                  <List boldText="Niveles 7-9" text="Demostración en entorno real y certificación." />
+                </div>
+
+                {/* TRL Image Placeholder */}
+                <div className="relative w-full aspect-[2/1] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 mt-auto">
+                  <Image
+                    src="/images/about/trl-scale.png"
+                    alt="Escala TRL"
+                    fill
+                    className="object-contain p-2"
+                  />
                 </div>
               </div>
             </div>
-            <SectionTitle
-                title="¿Que es un CRL?"
-                paragraph="El CRL (Commercial Readiness Level) o Nivel de Madurez Comercial es una metodología que permite evaluar qué tan preparada está una tecnología o innovación para ser llevada al mercado.
-Mientras el TRL mide la madurez tecnológica, el CRL se enfoca en la madurez comercial, es decir, si existe un mercado real, clientes potenciales, un modelo de negocio viable y condiciones para la comercialización."
-                mb="44px"
-              />
-                              <div className="mx-[-12px] flex flex-wrap">
-                  <div className="w-full px-3 sm:w-1/2 lg:w-full xl:w-1/2">
-                    <List text="Evalúa la madurez comercial" />
-                    <List text="Análisis de mercado y clientes" />
-                    <List text="Apoyo a la comercialización" />
-                  </div>
 
-                  <div className="w-full px-3 sm:w-1/2 lg:w-full xl:w-1/2">
-                    <List text="Complemento del TRL" />
-                    <List text="Orientado a innovación y emprendimiento" />
-                    <List text="Valida la viabilidad comercial" />
+            {/* CRL Column */}
+            <div className="bg-white p-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-green-50/50 h-full transition-transform hover:-translate-y-1">
+              <div className="mb-6 flex flex-col h-full">
+                <div>
+                  <span className="bg-green-50 text-green-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block border border-green-100">
+                    Comercialización
+                  </span>
+                  <h3 className="text-2xl font-bold text-[#090e34] mb-4">¿Qué es el CRL?</h3>
+                  <p className="text-body-color text-base leading-relaxed mb-6">
+                    El **CRL (Commercial Readiness Level)** evalúa qué tan preparada está una tecnología para generar ingresos y escalar comercialmente.
+                  </p>
+                  <div className="space-y-4 mb-8">
+                    <List boldText="Nivel 1" text="Identificación de la necesidad y propuesta inicial." />
+                    <List boldText="Nivel 3" text="Validación con Early Adopters." />
+                    <List boldText="Nivel 5" text="Modelo probado y listo para expansión." />
                   </div>
                 </div>
+
+                {/* CRL Image Placeholder */}
+                <div className="relative w-full aspect-[1/1.2] bg-gray-50 rounded-xl overflow-hidden border border-gray-100 mt-auto">
+                  <Image
+                    src="/images/about/crl-scale.png"
+                    alt="Escala CRL"
+                    fill
+                    className="object-contain p-4"
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
+
+          {/* Sinergy Section */}
+          <div className="bg-[#1d2144] rounded-3xl p-10 md:p-16 text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 -mr-32 -mt-32 rounded-full blur-[100px]"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 -ml-32 -mb-32 rounded-full blur-[100px]"></div>
+
+            <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
+              <div className="text-left">
+                <h4 className="text-3xl font-bold mb-6">Sinergia Estratégica</h4>
+                <p className="text-blue-100/90 text-lg leading-relaxed mb-6">
+                  Muchos proyectos mueren en el famoso <strong className="text-white font-extrabold uppercase tracking-wide">"Valle de la Muerte"</strong>. Nuestra evaluación combinada te ayuda a cruzar este puente vinculando el desarrollo técnico con hitos comerciales reales.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-md">Reducción de Riesgo</span>
+                  <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-md">Atracción de Inversión</span>
+                  <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-md">Time-to-Market</span>
+                </div>
+              </div>
+              <div className="bg-white/5 p-8 rounded-2xl backdrop-blur-md border border-white/10">
+                <h5 className="font-bold mb-4 flex items-center gap-2 text-blue-300">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" /></svg>
+                  Conceptos Relevantes
+                </h5>
+                <ul className="space-y-3 text-sm text-blue-100/80">
+                  <li>• <strong className="text-white">SINACYT</strong>: Sistema Nacional de Ciencia, Tecnología e Innovación.</li>
+                  <li>• <strong className="text-white">MVP</strong>: Producto Mínimo Viable para validación técnica rápida.</li>
+                  <li>• <strong className="text-white">Entorno Relevante</strong>: Condiciones que simulan el uso real.</li>
+                  <li>• <strong className="text-white">Spin-off</strong>: Alianzas para comercializar resultados de investigación.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

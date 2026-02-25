@@ -113,103 +113,129 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
   };
 
   return (
-    <div className="mt-12 space-y-4">
+    <div className="mt-12 space-y-6">
       <div className="flex justify-end gap-3">
         <button
           onClick={downloadPDF}
-          className="px-6 py-3 bg-green-600 text-white rounded font-semibold hover:bg-green-700 flex items-center gap-2"
+          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 text-sm"
         >
-          📄 Descargar PDF
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Descargar Informe PDF
         </button>
       </div>
-      <div ref={resultsRef} className="bg-white rounded-lg shadow-lg p-8 space-y-8">
-      <h3 className="text-2xl font-bold">Resultados del Diagnóstico</h3>
 
-      {/* Niveles de Madurez */}
-      <div className="space-y-3">
-        <div className="bg-yellow-200 border-2 border-black p-4 flex items-center justify-between">
-          <div>
-            <div className="font-bold text-lg">Nivel de madurez tecnológica — TRL</div>
-            <div className="text-sm text-black/80">
-              {tecFilled ? `Nivel ${tecAvg} — ${getLevelLabel(tecAvg, "trl")}` : "Responde las 4 categorías tecnológicas para calcular"}
+      <div ref={resultsRef} className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-10 border border-gray-100 text-gray-900">
+
+        <header className="text-center space-y-2 border-b pb-8">
+          <h3 className="text-3xl font-extrabold text-blue-900">Resultados del Diagnóstico</h3>
+          <p className="text-gray-500 font-medium">Análisis detallado de madurez técnica y comercial</p>
+        </header>
+
+        {/* Niveles de Madurez */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Tecnológica</span>
+              <h4 className="font-bold text-lg text-blue-900">Nivel TRL</h4>
+              <p className="text-sm text-blue-800 font-medium leading-tight max-w-[200px]">
+                {tecFilled ? `Nivel ${tecAvg} — ${getLevelLabel(tecAvg, "trl")}` : "Pendiente"}
+              </p>
+            </div>
+            <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-lg shadow-blue-200">
+              {tecFilled ? tecAvg : "-"}
             </div>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center border-2 border-black bg-white font-bold text-lg">
-            {tecFilled ? tecAvg : "-"}
+
+          <div className="bg-green-50/50 rounded-2xl p-6 border border-green-100 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-green-600 uppercase tracking-widest">Comercial</span>
+              <h4 className="font-bold text-lg text-green-900">Nivel CLR</h4>
+              <p className="text-sm text-green-800 font-medium leading-tight max-w-[200px]">
+                {comFilled ? `Nivel ${comAvg} — ${getLevelLabel(comAvg, "clr")}` : "Pendiente"}
+              </p>
+            </div>
+            <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-green-600 text-white font-black text-2xl shadow-lg shadow-green-200">
+              {comFilled ? comAvg : "-"}
+            </div>
           </div>
         </div>
 
-        <div className="bg-yellow-200 border-2 border-black p-4 flex items-center justify-between">
-          <div>
-            <div className="font-bold text-lg">Nivel de madurez comercial — CLR</div>
-            <div className="text-sm text-black/80">
-              {comFilled ? `Nivel ${comAvg} — ${getLevelLabel(comAvg, "clr")}` : "Responde las 3 categorías comerciales para calcular"}
+        {/* Resumen Total Circular / Card */}
+        <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 text-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 -mr-16 -mt-16 rounded-full opacity-50 transition-transform group-hover:scale-110"></div>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Puntaje Global</p>
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-6xl font-black text-gray-900">{total}</span>
+            <div className="text-left">
+              <p className="text-sm font-bold text-gray-400">/ {max} PTS</p>
+              <p className="text-2xl font-black text-blue-600">{pct}%</p>
             </div>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center border-2 border-black bg-white font-bold text-lg">
-            {comFilled ? comAvg : "-"}
+        </div>
+
+        {/* Gráfico Radar */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-8 flex flex-col items-center">
+          <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">Radar de Madurez</h4>
+          <div className="w-full h-[400px] md:h-[500px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData} margin={{ top: 20, right: 30, left: 30, bottom: 20 }}>
+                <PolarGrid stroke="#e2e8f0" />
+                <PolarAngleAxis
+                  dataKey="category"
+                  tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }}
+                />
+                <PolarRadiusAxis angle={90} domain={[0, 5]} tick={{ fontSize: 9, fill: "#94a3b8" }} axisLine={false} />
+                <Radar
+                  name="Madurez"
+                  dataKey="value"
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                  fill="#3b82f6"
+                  fillOpacity={0.3}
+                />
+                <Tooltip
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      </div>
 
-      {/* Tabla de Respuestas */}
-      <div>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-300 border-2 border-black">
-              <th className="border border-black p-3 text-left font-semibold">Categoría</th>
-              <th className="border border-black p-3 text-left font-semibold">Respuesta</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map((q) => {
-              const val = answers[q.id];
-              const text = val ? q.options[val - 1] : "-";
-              return (
-                <tr key={q.id} className="border-2 border-black">
-                  <td className="border border-black p-3 font-semibold">{q.title}</td>
-                  <td className="border border-black p-3 text-sm">{text}</td>
+        {/* Tabla de Respuestas Estilizada */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Detalle de Respuestas</h4>
+          <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/50 border-b border-gray-100">
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Categoría</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Diagnóstico Seleccionado</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Gráfico Radar */}
-      <div className="border-2 border-black p-6">
-        <div className="flex justify-center">
-          <ResponsiveContainer width="100%" height={500}>
-            <RadarChart data={radarData} margin={{ top: 40, right: 120, left: 120, bottom: 40 }}>
-              <PolarGrid stroke="#ddd" />
-              <PolarAngleAxis
-                dataKey="category"
-                tick={{ fontSize: 11 }}
-                angle={0}
-                orientation="inner"
-              />
-              <PolarRadiusAxis angle={0} domain={[0, 5]} tick={{ fontSize: 10 }} />
-              <Radar
-                name="Nivel de Madurez"
-                dataKey="value"
-                stroke="#4A6CF7"
-                fill="#4A6CF7"
-                fillOpacity={0.6}
-              />
-              <Legend />
-              <Tooltip formatter={(value) => `Nivel ${value}`} />
-            </RadarChart>
-          </ResponsiveContainer>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {questions.map((q) => {
+                  const val = answers[q.id];
+                  const text = val ? q.options[val - 1] : "-";
+                  return (
+                    <tr key={q.id} className="hover:bg-blue-50/20 transition-colors">
+                      <td className="px-6 py-4 font-bold text-sm text-gray-800">{q.title}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 leading-relaxed">{text}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Resumen Total */}
-      <div className="border-2 border-black p-6 text-center">
-        <p className="text-sm font-bold text-black mb-2">Puntaje Total</p>
-        <p className="text-4xl font-bold text-black mb-2">
-          {total} / {max}</p>
-        <p className="text-xl text-black font-bold">{pct}%</p>
-      </div>
+        {/* Footer del Informe */}
+        <footer className="pt-8 border-t text-center space-y-2">
+          <p className="text-sm font-bold text-blue-900">{profile.title || "Proyecto Diagnóstico"}</p>
+          <p className="text-xs text-gray-400">Generado el {new Date().toLocaleDateString()} por TRL-CRL Analyzer</p>
+        </footer>
       </div>
     </div>
   );

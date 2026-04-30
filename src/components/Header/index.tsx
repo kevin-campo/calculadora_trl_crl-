@@ -93,7 +93,7 @@ const Header = () => {
                     }`}
                 >
                   <ul className="block lg:flex lg:space-x-12">
-                    {menuData.map((menuItem, index) => (
+                    {[...menuData, ...(user && user.role === 'admin' ? [{ id: 99, title: "Admin", path: "/admin", newTab: false }] : [])].map((menuItem, index) => (
                       <li key={index} className="group relative">
                         {menuItem.path ? (
                           <Link

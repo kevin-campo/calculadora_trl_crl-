@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { subscribeToAuthChanges, logout } from "../../backend/auth";
+import { userActions } from "../../backend/crud";
 
 const AuthContext = createContext({
   user: null,
@@ -14,8 +15,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges((currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = subscribeToAuthChanges(async (currentUser) => {
+      if (currentUser) {
+        // Obtener datos adicionales (como el rol) desde Firestore
+        try {
+          const profile = await userActions.getById(currentUser.uid);
+          setUser({ ...currentUser, ...profile });
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUser(currentUser);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 

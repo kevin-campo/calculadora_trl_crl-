@@ -34,11 +34,19 @@ export const createDocument = async (collectionName, data) => {
 };
 
 // Read All
-export const getDocuments = async (collectionName, orderByField = "createdAt") => {
+export const getDocuments = async (collectionName) => {
   try {
-    const q = query(collection(db, collectionName), orderBy(orderByField, "desc"));
+    if (!db) throw new Error("Firestore (db) no está inicializado. Revisa tus variables de entorno.");
+    const q = collection(db, collectionName);
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Ordenar manualmente por createdAt si existe, para evitar problemas de índices en Firebase
+    return data.sort((a, b) => {
+      const timeA = a.createdAt?.seconds || 0;
+      const timeB = b.createdAt?.seconds || 0;
+      return timeB - timeA;
+    });
   } catch (error) {
     console.error(`Error getting documents from ${collectionName}: `, error);
     throw error;
@@ -96,7 +104,7 @@ export const deleteDocument = async (collectionName, id) => {
 // 1. BLOGS (Posts, News)
 export const blogActions = {
   create: (data) => createDocument("blogs", data),
-  getAll: () => getDocuments("blogs", "publishDate"),
+  getAll: () => getDocuments("blogs"),
   getById: (id) => getDocumentById("blogs", id),
   update: (id, data) => updateDocument("blogs", id, data),
   delete: (id) => deleteDocument("blogs", id)
@@ -142,13 +150,27 @@ export const pricingActions = {
 };
 
 // 7. USERS (Profiles)
+export const ADMIN_EMAILS = ["admin@trl-crl.com", "supervisor@trl-crl.com"];
+
 export const userActions = {
   create: (uid, data) => {
-    // En usuarios solemos usar el UID de Auth como ID del documento
+    // Si el email está en la lista de administradores, forzamos el rol de admin
+    const userData = { ...data };
+    if (data.email && ADMIN_EMAILS.includes(data.email)) {
+      userData.role = "admin";
+    } else if (!userData.role) {
+      userData.role = "user"; // Rol por defecto
+    }
+
     const docRef = doc(db, "users", uid);
-    return setDoc(docRef, { ...data, updatedAt: serverTimestamp() }, { merge: true });
+    return setDoc(docRef, { ...userData, updatedAt: serverTimestamp() }, { merge: true });
   },
-  getById: (uid) => getDocumentById("users", uid)
+  getById: (uid) => getDocumentById("users", uid),
+  getAll: () => getDocuments("users"),
+  updateRole: (uid, role) => {
+    const docRef = doc(db, "users", uid);
+    return updateDoc(docRef, { role, updatedAt: serverTimestamp() });
+  }
 };
 
 // 8. DIAGNOSTICS (TRL/CRL results)

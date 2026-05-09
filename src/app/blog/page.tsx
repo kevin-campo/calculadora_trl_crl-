@@ -2,47 +2,49 @@
 import SingleBlog from "@/components/Blog/SingleBlog";
 import blogData from "@/components/Blog/blogData";
 import Breadcrumb from "@/components/Common/Breadcrumb";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 
 const Blog = () => {
   return (
-    <>
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
       <Breadcrumb
-        pageName="Noticias y Novedades"
+        pageName="Blog y Noticias"
         description="Explora nuestras últimas publicaciones sobre innovación, tecnología y madurez comercial."
       />
 
-      <section className="pt-[120px] pb-[120px]">
-        <div className="container relative">
-          <div className="group relative">
-            {/* Navigation Buttons */}
-            <button
-              onClick={() => {
-                const el = document.getElementById("blog-slider");
-                el.scrollBy({ left: -400, behavior: "smooth" });
-              }}
-              className="absolute -left-4 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white/80 p-3 opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-white group-hover:opacity-100 lg:flex dark:bg-dark/80 dark:hover:bg-dark"
-              aria-label="Anterior"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
+      <section className="pb-24 pt-12">
+        <div className="container">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
+            <div>
+              <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Últimas Publicaciones</h3>
+              <p className="text-gray-500 dark:text-gray-400">Mantente al día con las tendencias de TRL y CRL</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const el = document.getElementById("blog-slider");
+                  el.scrollBy({ left: -400, behavior: "smooth" });
+                }}
+                className="w-12 h-12 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white transition-all shadow-sm cursor-pointer"
+                aria-label="Anterior"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button
+                onClick={() => {
+                  const el = document.getElementById("blog-slider");
+                  el.scrollBy({ left: 400, behavior: "smooth" });
+                }}
+                className="w-12 h-12 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white transition-all shadow-sm cursor-pointer"
+                aria-label="Siguiente"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          </div>
 
-            <button
-              onClick={() => {
-                const el = document.getElementById("blog-slider");
-                el.scrollBy({ left: 400, behavior: "smooth" });
-              }}
-              className="absolute -right-4 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white/80 p-3 opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-white group-hover:opacity-100 lg:flex dark:bg-dark/80 dark:hover:bg-dark"
-              aria-label="Siguiente"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-
-            {/* Slider Container */}
+          <div className="relative">
             <div
               id="blog-slider"
               className="no-scrollbar -mx-4 flex scroll-smooth overflow-x-auto px-4 pb-12 snap-x snap-mandatory"
@@ -50,9 +52,11 @@ const Blog = () => {
               {blogData.map((blog) => (
                 <div
                   key={blog.id}
-                  className="w-[85%] min-w-[300px] shrink-0 px-4 md:w-1/2 lg:w-1/3 xl:w-1/3 snap-center transition-transform duration-300 hover:scale-[1.02] flex"
+                  className="w-[90%] min-w-[320px] shrink-0 px-4 md:w-1/2 lg:w-1/3 snap-center transition-all duration-500"
                 >
-                  <SingleBlog blog={blog} />
+                  <div className="h-full bg-white dark:bg-gray-800 rounded-[32px] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-2xl hover:border-blue-500/30 transition-all group">
+                    <SingleBlog blog={blog} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -69,7 +73,7 @@ const Blog = () => {
           `}</style>
         </div>
       </section>
-    </>
+    </main>
   );
 };
 

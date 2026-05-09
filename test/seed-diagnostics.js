@@ -1,18 +1,24 @@
 require('dotenv').config({ path: '.env.local' });
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, addDoc, serverTimestamp } = require('firebase/firestore');
+const admin = require('firebase-admin');
+const path = require('path');
+const fs = require('fs');
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+// Intentar cargar la llave de servicio
+const serviceAccountPath = path.join(process.cwd(), 'serviceAccountKey.json');
+let db;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+if (fs.existsSync(serviceAccountPath)) {
+  if (!admin.apps.length) {
+    const serviceAccount = require(serviceAccountPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  }
+  db = admin.firestore();
+} else {
+  console.error(" ERROR: No se encontró serviceAccountKey.json en la raíz.");
+  process.exit(1);
+}
 
 const testDiagnostics = [
   {
@@ -60,14 +66,14 @@ async function seedDiagnostics() {
   console.log("--- Iniciando inserción de diagnósticos de prueba ---");
   for (const diag of testDiagnostics) {
     try {
-      await addDoc(collection(db, "diagnostics"), {
+      await db.collection("diagnostics").add({
         ...diag,
-        createdAt: serverTimestamp(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
         timestamp: new Date().toISOString()
       });
-      console.log(` Diagnóstico creado para: ${diag.profile.org} (${diag.profile.title})`);
+      console.log(`Diagnóstico creado para: ${diag.profile.org} (${diag.profile.title})`);
     } catch (error) {
-      console.error(` Error creando diagnóstico para ${diag.profile.org}:`, error);
+      console.error(` ERROR creando diagnóstico para ${diag.profile.org}:`, error);
     }
   }
   console.log("--- Finalizado ---\n");

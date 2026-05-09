@@ -1,12 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signUpWithEmail, signInWithGoogle, signInWithGithub } from "../../../backend/auth";
+import { useAuth } from "@/context/AuthContext";
+import { Mail, Lock, ArrowRight, ShieldCheck, User, CheckCircle2, AlertCircle } from "lucide-react";
 
 const SignupPage = () => {
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
+    }
+  }, [user, authLoading, router]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -51,145 +64,169 @@ const SignupPage = () => {
   };
 
   return (
-    <>
-      <section className="relative z-10 overflow-hidden pt-36 pb-16 md:pb-20 lg:pt-[180px] lg:pb-28">
-        <div className="container">
-          <div className="-mx-4 flex flex-wrap">
-            <div className="w-full px-4">
-              <div className="shadow-three dark:bg-dark mx-auto max-w-[500px] rounded-sm bg-white px-6 py-10 sm:p-[60px]">
-                <h3 className="mb-3 text-center text-2xl font-bold text-black sm:text-3xl dark:text-white">
-                  Crea tu cuenta
-                </h3>
-                <p className="text-body-color mb-11 text-center text-base font-medium">
-                  Es totalmente gratis y muy sencillo.
+    <main className="min-h-screen relative flex items-center justify-center bg-[#f8faff] dark:bg-black overflow-hidden px-4 pt-32 pb-20 transition-colors duration-300">
+      {/* Background Shapes */}
+      <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-blue-600/10 dark:bg-blue-600/20 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-indigo-600/10 dark:bg-indigo-600/20 rounded-full blur-[120px]"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-[1000px] animate-in fade-in zoom-in-95 duration-700">
+        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-3xl rounded-[40px] shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
+          <div className="flex flex-col lg:flex-row">
+            
+            {/* Lado Izquierdo: Información TRL/CRL */}
+            <div className="w-full lg:w-1/2 bg-[#0A0F2D] p-10 sm:p-14 text-white relative overflow-hidden flex flex-col justify-center border-r border-white/5">
+              {/* Efectos de Iluminación Suave */}
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 -mr-64 -mt-64 rounded-full blur-[100px]"></div>
+              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/20 -ml-64 -mb-64 rounded-full blur-[100px]"></div>
+              
+              <div className="relative z-10">
+                <Link href="/" className="inline-flex items-center gap-3 mb-10 group">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <ShieldCheck size={28} className="text-white" />
+                  </div>
+                  <span className="text-2xl font-black tracking-tighter uppercase italic">TRL <span className="text-blue-200 not-italic">CRL</span></span>
+                </Link>
+                
+                <h2 className="text-4xl font-black mb-6 leading-tight tracking-tight">Comienza tu Evaluación Hoy</h2>
+                <p className="text-blue-100 text-lg font-medium mb-10 leading-relaxed">
+                  Únete a cientos de innovadores que ya están midiendo el impacto de su tecnología con rigor científico.
                 </p>
 
-                {error && (
-                  <div className="mb-6 rounded-sm bg-red-100 p-4 text-center text-sm font-medium text-red-600">
-                    {error}
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                      <ShieldCheck size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-lg">Diagnósticos Seguros</h4>
+                      <p className="text-blue-100/80 text-sm leading-relaxed">Tus datos están protegidos y solo tú decides quién puede ver tus resultados de madurez.</p>
+                    </div>
                   </div>
-                )}
-
-                <button
-                  onClick={handleGoogleSignup}
-                  disabled={loading}
-                  className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary mb-6 flex w-full items-center justify-center rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:hover:shadow-none disabled:opacity-50"
-                >
-                  <span className="mr-3">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g clipPath="url(#clip0_95:967)">
-                        <path
-                          d="M20.0001 10.2216C20.0122 9.53416 19.9397 8.84776 19.7844 8.17725H10.2042V11.8883H15.8277C15.7211 12.539 15.4814 13.1618 15.1229 13.7194C14.7644 14.2769 14.2946 14.7577 13.7416 15.1327L13.722 15.257L16.7512 17.5567L16.961 17.5772C18.8883 15.8328 19.9997 13.266 19.9997 10.2216"
-                          fill="#4285F4"
-                        />
-                        <path
-                          d="M10.2042 20.0001C12.9592 20.0001 15.2721 19.1111 16.9616 17.5778L13.7416 15.1332C12.88 15.7223 11.7235 16.1334 10.2042 16.1334C8.91385 16.126 7.65863 15.7206 6.61663 14.9747C5.57464 14.2287 4.79879 13.1802 4.39915 11.9778L4.27957 11.9878L1.12973 14.3766L1.08856 14.4888C1.93689 16.1457 3.23879 17.5387 4.84869 18.512C6.45859 19.4852 8.31301 20.0005 10.2046 20.0001"
-                          fill="#34A853"
-                        />
-                        <path
-                          d="M4.39911 11.9777C4.17592 11.3411 4.06075 10.673 4.05819 9.99996C4.0623 9.32799 4.17322 8.66075 4.38696 8.02225L4.38127 7.88968L1.19282 5.4624L1.08852 5.51101C0.372885 6.90343 0.00012207 8.4408 0.00012207 9.99987C0.00012207 11.5589 0.372885 13.0963 1.08852 14.4887L4.39911 11.9777Z"
-                          fill="#FBBC05"
-                        />
-                        <path
-                          d="M10.2042 3.86663C11.6663 3.84438 13.0804 4.37803 14.1498 5.35558L17.0296 2.59996C15.1826 0.901848 12.7366 -0.0298855 10.2042 -3.6784e-05C8.3126 -0.000477834 6.45819 0.514732 4.8483 1.48798C3.2384 2.46124 1.93649 3.85416 1.08813 5.51101L4.38775 8.02225C4.79132 6.82005 5.56974 5.77231 6.61327 5.02675C7.6568 4.28118 8.91279 3.87541 10.2042 3.86663Z"
-                          fill="#EB4335"
-                        />
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_95:967">
-                          <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </span>
-                  Regístrate con Google
-                </button>
-
-                <div className="mb-8 flex items-center justify-center">
-                  <span className="bg-body-color/50 hidden h-[1px] w-full max-w-[60px] sm:block"></span>
-                  <p className="text-body-color w-full px-5 text-center text-base font-medium">
-                    O regístrate con tu email
-                  </p>
-                  <span className="bg-body-color/50 hidden h-[1px] w-full max-w-[60px] sm:block"></span>
+                  
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                      <CheckCircle2 size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-lg">Reportes en PDF</h4>
+                      <p className="text-blue-100/80 text-sm leading-relaxed">Genera documentos profesionales listos para presentar ante inversores o convocatorias.</p>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </div>
 
-                <form onSubmit={handleSignup}>
-                  <div className="mb-8">
-                    <label
-                      htmlFor="name"
-                      className="text-dark mb-3 block text-sm dark:text-white"
-                    >
-                      Nombre Completo
-                    </label>
+            {/* Lado Derecho: Formulario */}
+            <div className="w-full lg:w-1/2 p-10 sm:p-14 lg:p-16 flex flex-col justify-center bg-white dark:bg-transparent">
+              <div className="mb-10">
+                <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Crear Cuenta</h3>
+                <p className="text-gray-500 dark:text-gray-400 font-bold text-sm">Regístrate para empezar a medir tus proyectos</p>
+              </div>
+
+              {error && (
+                <div className="mb-8 flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-in bounce-in">
+                  <AlertCircle size={18} />
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={handleGoogleSignup}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-sm font-black hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm hover:shadow-xl active:scale-[0.97] disabled:opacity-50 cursor-pointer mb-8"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"/>
+                </svg>
+                Registrarse con Google
+              </button>
+
+              <div className="relative flex items-center gap-4 mb-8">
+                <div className="flex-1 h-[1px] bg-gray-200 dark:bg-white/10"></div>
+                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">o bien</span>
+                <div className="flex-1 h-[1px] bg-gray-200 dark:bg-white/10"></div>
+              </div>
+
+              <form onSubmit={handleSignup} className="space-y-5">
+                <div>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Ingresa tu nombre completo"
-                      className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color focus:border-primary dark:focus:border-primary w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:focus:shadow-none"
+                      placeholder="Nombre completo"
+                      className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 pl-12 pr-5 py-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-900 dark:text-white"
+                      required
                     />
                   </div>
-                  <div className="mb-8">
-                    <label
-                      htmlFor="email"
-                      className="text-dark mb-3 block text-sm dark:text-white"
-                    >
-                      Email de Trabajo
-                    </label>
+                </div>
+
+                <div>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="Ingresa tu email"
-                      className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color focus:border-primary dark:focus:border-primary w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:focus:shadow-none"
+                      placeholder="Correo corporativo"
+                      className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 pl-12 pr-5 py-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-900 dark:text-white"
+                      required
                     />
                   </div>
-                  <div className="mb-8">
-                    <label
-                      htmlFor="password"
-                      className="text-dark mb-3 block text-sm dark:text-white"
-                    >
-                      Tu Contraseña
-                    </label>
+                </div>
+
+                <div>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                     <input
                       type="password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="Ingresa tu contraseña"
-                      className="border-stroke dark:text-body-color-dark dark:shadow-two text-body-color focus:border-primary dark:focus:border-primary w-full rounded-xs border bg-[#f8f8f8] px-6 py-3 text-base outline-hidden transition-all duration-300 dark:border-transparent dark:bg-[#2C303B] dark:focus:shadow-none"
+                      placeholder="Contraseña segura"
+                      className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 pl-12 pr-5 py-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-900 dark:text-white"
+                      required
                     />
                   </div>
-                  <div className="mb-6">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="shadow-submit dark:shadow-submit-dark bg-primary hover:bg-primary/90 flex w-full items-center justify-center rounded-xs px-9 py-4 text-base font-medium text-white duration-300 disabled:opacity-50"
-                    >
-                      {loading ? "Registrando..." : "Registrarse"}
-                    </button>
-                  </div>
-                </form>
-                <p className="text-body-color text-center text-base font-medium">
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-600/30 hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-2 group active:scale-[0.97] disabled:opacity-50 cursor-pointer mt-4"
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      Crear mi Cuenta
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-10 text-center">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   ¿Ya tienes una cuenta?{" "}
-                  <Link href="/signin" className="text-primary hover:underline">
-                    Inicia sesión
+                  <Link href="/signin" className="text-blue-600 font-black hover:text-blue-500 ml-1 transition-colors underline-offset-4 hover:underline">
+                    Inicia sesión aquí
                   </Link>
                 </p>
               </div>
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </main>
   );
 };
 

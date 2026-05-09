@@ -1,18 +1,26 @@
 require('dotenv').config({ path: '.env.local' });
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } = require('firebase/firestore');
+const admin = require('firebase-admin');
+const path = require('path');
+const fs = require('fs');
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+// Intentar cargar la llave de servicio para saltar reglas de seguridad
+const serviceAccountPath = path.join(process.cwd(), 'serviceAccountKey.json');
+let db;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+if (fs.existsSync(serviceAccountPath)) {
+  const serviceAccount = require(serviceAccountPath);
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  }
+  db = admin.firestore();
+  console.log("🔐 Usando Firebase Admin SDK (Privilegios de administrador)");
+} else {
+  console.error("❌ ERROR: No se encontró serviceAccountKey.json en la raíz.");
+  console.error("Para ejecutar tests con reglas restrictivas, necesitas este archivo.");
+  process.exit(1);
+}
 
 const testUsers = [
   {
@@ -43,14 +51,14 @@ async function seedUsers() {
   for (const user of testUsers) {
     try {
       const { uid, ...userData } = user;
-      await setDoc(doc(db, "users", uid), {
+      await db.collection("users").doc(uid).set({
         ...userData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
       console.log(` Usuario creado: ${user.name} (${user.email})`);
     } catch (error) {
-      console.error(` Error creando usuario ${user.name}:`, error);
+      console.error(` ERROR creando usuario ${user.name}:`, error);
     }
   }
   console.log("--- Finalizado ---\n");

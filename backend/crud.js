@@ -46,6 +46,12 @@ export const subscribeToCollection = (collectionName, callback) => {
 // Create
 export const createDocument = async (collectionName, data) => {
   try {
+    if (!db) {
+      console.error("❌ ERROR: El objeto 'db' es null. Firebase no se inicializó correctamente.");
+      throw new Error("No se pudo conectar con la base de datos. Verifica tu configuración de Firebase.");
+    }
+    
+    console.log(`Attempting to write to collection: ${collectionName}...`);
     const docRef = await addDoc(collection(db, collectionName), {
       ...data,
       createdAt: serverTimestamp(),
@@ -53,7 +59,10 @@ export const createDocument = async (collectionName, data) => {
     });
     return { id: docRef.id, ...data };
   } catch (error) {
-    console.error(`Error adding document to ${collectionName}: `, error);
+    console.error(`❌ Error en createDocument (${collectionName}):`, error.code, error.message);
+    if (error.message?.includes("404")) {
+      throw new Error("Error 404: La base de datos de Firestore no existe o el ID del proyecto es incorrecto.");
+    }
     throw error;
   }
 };
@@ -200,6 +209,14 @@ export const userActions = {
   updateRole: (uid, role) => {
     const docRef = doc(db, "users", uid);
     return updateDoc(docRef, { role, updatedAt: serverTimestamp() });
+  },
+  updateStatus: (uid, status) => {
+    const docRef = doc(db, "users", uid);
+    return updateDoc(docRef, { status, updatedAt: serverTimestamp() });
+  },
+  delete: (uid) => {
+    const docRef = doc(db, "users", uid);
+    return deleteDoc(docRef);
   }
 };
 
@@ -235,5 +252,6 @@ export const diagnosticActions = {
     }
   },
   getById: (id) => getDocumentById("diagnostics", id),
+  update: (id, data) => updateDocument("diagnostics", id, data),
   delete: (id) => deleteDocument("diagnostics", id)
 };

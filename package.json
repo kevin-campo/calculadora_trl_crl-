@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:seed": "node test/run-tests.js"
+    "test:seed": "node test/run-tests.js",
+    "test:auth": "node test/auth-roles.test.js",
+    "test:calc": "node test/calculator-logic.test.js",
+    "test:users": "node test/seed-users.js",
+    "test:diags": "node test/seed-diagnostics.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -16,6 +20,7 @@
     "eslint": "^9.24.0",
     "eslint-config-next": "15.1.6",
     "firebase": "^12.9.0",
+    "firebase-admin": "^13.9.0",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.14.0",
     "jspdf": "^4.1.0",

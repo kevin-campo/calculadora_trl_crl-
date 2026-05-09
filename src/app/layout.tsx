@@ -1,12 +1,20 @@
-"use client";
-
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Inter } from "next/font/google";
 import "../styles/index.css";
+import { Providers } from "./providers";
+import { Metadata } from "next";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+});
+
+export const metadata: Metadata = {
+  title: "TRL & CRL - Calculadora de Madurez",
+  description: "Evaluación de madurez tecnológica y comercial",
+};
 
 export default function RootLayout({
   children,
@@ -15,10 +23,6 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="es">
-      {/*
-        <head /> will contain the components returned by the nearest parent
-        head.js. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-      */}
       <head />
 
       <body className={`bg-[#FCFCFC] dark:bg-black ${inter.className}`}>
@@ -34,6 +38,4 @@ export default function RootLayout({
     </html>
   );
 }
-
-import { Providers } from "./providers";
 

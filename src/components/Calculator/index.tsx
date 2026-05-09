@@ -57,18 +57,23 @@ const Calculator: React.FC = () => {
 
     try {
       const summary = calculate();
-      await diagnosticActions.create({
+      const result = await diagnosticActions.create({
         userId: finalUserId,
         profile,
         answers,
         summary,
         timestamp: new Date().toISOString()
       });
-      console.log("Diagnóstico guardado exitosamente en DB.");
+      console.log("Diagnóstico guardado exitosamente en DB:", result.id);
       setSaveStatus("success");
-    } catch (e) {
-      console.error("Error al guardar en DB:", e);
+    } catch (e: any) {
+      console.error("❌ ERROR CRÍTICO DE CONEXIÓN:", e);
       setSaveStatus("error");
+      
+      // Diagnóstico detallado del error 404
+      if (e.code === 'not-found' || e.message?.includes("404")) {
+        console.error("El recurso no fue encontrado. Verifica que el Project ID '" + process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID + "' sea correcto y que Firestore esté activado en la consola de Firebase.");
+      }
     } finally {
       setIsSaving(false);
     }

@@ -16,10 +16,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges(async (currentUser) => {
+      setLoading(true);
       if (currentUser) {
         // Obtener datos adicionales (como el rol) desde Firestore
         try {
           const profile = await userActions.getById(currentUser.uid);
+          // Spread currentUser (Firebase User) carefully or merge with profile
           let finalUser = { ...currentUser, ...profile };
 
           // Verificación de seguridad: si el email está en la lista de admins
@@ -28,10 +30,10 @@ export const AuthProvider = ({ children }) => {
             if (finalUser.role !== "admin") {
               console.log("Forzando rol de administrador para:", currentUser.email);
               finalUser.role = "admin";
-              // Actualizar en segundo plano para que persista
+              // Actualizar para que persista el rol de admin
               userActions.create(currentUser.uid, {
                 name: currentUser.displayName || profile?.name || "Admin",
-                email: currentUser.email,
+                email: currentUser.email, 
                 role: "admin"
               });
             }

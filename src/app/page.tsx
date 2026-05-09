@@ -1,21 +1,11 @@
-import AboutSectionOne from "@/components/About/AboutSectionOne";
-import AboutSectionTwo from "@/components/About/AboutSectionTwo";
-import Blog from "@/components/Blog";
-import Brands from "@/components/Brands";
-import ScrollUp from "@/components/Common/ScrollUp";
-import Contact from "@/components/Contact";
-import Features from "@/components/Features";
 import Hero from "@/components/Hero";
-import Calculator from "@/components/Calculator";
-import Pricing from "@/components/Pricing";
-import Testimonials from "@/components/Testimonials";
-import Video from "@/components/Video";
+import ScrollUp from "@/components/Common/ScrollUp";
 import { Metadata } from "next";
+import CalculatorWrapper from "@/components/Calculator/CalculatorWrapper";
 
 export const metadata: Metadata = {
   title: "Calculadora de Madurez - TRL",
   description: "Herramienta para evaluar la madurez tecnológica y comercial de propuestas",
-  // other metadata
 };
 
 export default function Home() {
@@ -23,7 +13,7 @@ export default function Home() {
     <>
       <ScrollUp />
       <Hero />
-      <Calculator />
+      <CalculatorWrapper />
     </>
   );
 }

@@ -25,10 +25,8 @@ export const signUpWithEmail = async (email, password, name) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Actualizar nombre en el perfil de Auth
     await updateProfile(user, { displayName: name });
 
-    // Crear documento del usuario en Firestore
     await userActions.create(user.uid, {
       name: name,
       email: email,
@@ -39,6 +37,13 @@ export const signUpWithEmail = async (email, password, name) => {
     return user;
   } catch (error) {
     console.error("Error en Registro:", error);
+    if (error.code === 'auth/email-already-in-use') {
+      throw new Error("Este correo ya está registrado. Intenta iniciar sesión.");
+    } else if (error.code === 'auth/weak-password') {
+      throw new Error("La contraseña es muy débil. Usa al menos 6 caracteres.");
+    } else if (error.code === 'auth/invalid-email') {
+      throw new Error("El formato del correo no es válido.");
+    }
     throw error;
   }
 };
@@ -49,9 +54,19 @@ export const signInWithEmail = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    console.error("Error en Inicio de Sesión:", error);
+    console.error("Error en Inicio de Sesión:", error.code, error.message);
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      throw new Error("Correo o contraseña incorrectos. Si no tienes cuenta, regístrate primero.");
+    } else if (error.code === 'auth/too-many-requests') {
+      throw new Error("Demasiados intentos fallidos. Por favor, intenta más tarde.");
+    }
     throw error;
   }
+};
+
+// Suscribirse a cambios de autenticación
+export const subscribeToAuthChanges = (callback) => {
+  return onAuthStateChanged(auth, callback);
 };
 
 // Inicio de Sesión / Registro con Google
@@ -60,8 +75,6 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Verificar si el usuario ya existe en Firestore o simplemente actualizarlo
-    // userActions.create usa updateDoc con merge (o similar) para no sobreescribir datos antiguos si no es necesario
     await userActions.create(user.uid, {
       name: user.displayName,
       email: user.email,
@@ -71,7 +84,12 @@ export const signInWithGoogle = async () => {
 
     return user;
   } catch (error) {
-    console.error("Error en Google Auth:", error);
+    console.error("Error en Google Auth:", error.code, error.message);
+    if (error.code === 'auth/popup-closed-by-user') {
+      throw new Error("La ventana de inicio de sesión se cerró antes de completar el proceso.");
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      throw new Error("Se canceló la solicitud de inicio de sesión.");
+    }
     throw error;
   }
 };
@@ -98,11 +116,6 @@ export const signInWithGithub = async () => {
 
 // Cerrar Sesión
 export const logout = () => signOut(auth);
-
-// Observador de estado de autenticación (hook-like helper)
-export const subscribeToAuthChanges = (callback) => {
-  return onAuthStateChanged(auth, callback);
-};
 
 // Actualizar información del perfil
 export const updateUserProfileInfo = async (name) => {

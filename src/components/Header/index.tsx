@@ -46,16 +46,16 @@ const Header = () => {
 
   const usePathName = usePathname();
 
-  const menuList = user && user.role === 'admin' 
-    ? [{ id: 99, title: "Dashboard", path: "/admin", newTab: false }, ...menuData]
+  const menuList = (!loading && user && user.role === 'admin')
+    ? [{ id: 99, title: "Admin", path: "/admin", newTab: false }, ...menuData]
     : menuData;
 
   return (
     <>
       <header
-        className={`header top-0 left-0 z-40 flex w-full items-center transition-all duration-500 ease-in-out ${sticky
-          ? "dark:bg-gray-dark/80 dark:shadow-sticky-dark shadow-sticky fixed z-9999 bg-white/80 backdrop-blur-md py-2"
-          : "absolute bg-transparent py-4"
+        className={`header top-0 left-0 z-40 flex w-full items-center transition-all duration-500 ease-in-out dark:bg-gray-dark/80 dark:shadow-sticky-dark shadow-sticky fixed z-9999 bg-white/80 backdrop-blur-md ${sticky
+          ? "py-2"
+          : "py-4"
           }`}
       >
         <div className="container">

@@ -1,17 +1,15 @@
 "use client";
 import React, { useRef, useState } from "react";
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  Legend,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import dynamic from "next/dynamic";
+
+// Carga dinámica de Recharts para mejorar el rendimiento inicial
+const ResponsiveContainer = dynamic(() => import("recharts").then(mod => mod.ResponsiveContainer), { ssr: false });
+const RadarChart = dynamic(() => import("recharts").then(mod => mod.RadarChart), { ssr: false });
+const PolarGrid = dynamic(() => import("recharts").then(mod => mod.PolarGrid), { ssr: false });
+const PolarAngleAxis = dynamic(() => import("recharts").then(mod => mod.PolarAngleAxis), { ssr: false });
+const PolarRadiusAxis = dynamic(() => import("recharts").then(mod => mod.PolarRadiusAxis), { ssr: false });
+const Radar = dynamic(() => import("recharts").then(mod => mod.Radar), { ssr: false });
+const Tooltip = dynamic(() => import("recharts").then(mod => mod.Tooltip), { ssr: false });
 
 type Props = {
   profile: { org: string; title: string; description: string };
@@ -72,105 +70,6 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
   };
 
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const downloadPDF = async () => {
-    if (!resultsRef.current || isDownloading) return;
-
-    setIsDownloading(true);
-    try {
-      const html2pdf = (await import("html2pdf.js")).default;
-      const element = resultsRef.current;
-
-      const opt: any = {
-        margin: [10, 10, 10, 10],
-        filename: `${profile.org?.replace(/\s+/g, '_') || "Diagnostico"}_TRL_CRL.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          scrollY: 0,
-          onclone: (clonedDoc: Document) => {
-            // ELIMINAR TODOS LOS ESTILOS EXISTENTES (Esto evita el error de parseo de 'lab' / 'oklch')
-            const styles = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
-            styles.forEach(s => s.remove());
-
-            // INYECTAR CSS SEGURO (Solo HEX y RGB estándar)
-            const safeStyle = clonedDoc.createElement('style');
-            safeStyle.innerHTML = `
-              * { box-sizing: border-box; font-family: sans-serif; }
-              #results-content { 
-                width: 850px !important; 
-                padding: 40px !important; 
-                background: #ffffff !important; 
-                color: #1a1a1a !important; 
-              }
-              header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 20px; margin-bottom: 30px; }
-              header h3 { color: #1e3a8a; margin: 0; font-size: 28px; }
-              header p { color: #666; margin: 5px 0 0; }
-              
-              .grid { display: flex; gap: 20px; width: 100%; margin-bottom: 30px; }
-              .grid > div { 
-                flex: 1; 
-                padding: 20px; 
-                border-radius: 12px; 
-                border: 1px solid #e5e7eb; 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-              }
-              .bg-\\[\\#f0f7ff\\] { background-color: #f0f7ff !important; border-color: #dbeafe !important; }
-              .bg-\\[\\#f0fdf4\\] { background-color: #f0fdf4 !important; border-color: #dcfce7 !important; }
-              .text-blue-900 { color: #1e3a8a !important; }
-              .text-blue-600 { color: #2563eb !important; }
-              .text-green-600 { color: #16a34a !important; }
-              
-              .h-16.w-16 { 
-                width: 60px; height: 60px; 
-                background: #2563eb; color: #fff; 
-                display: flex; align-items: center; justify-content: center; 
-                border-radius: 12px; font-weight: bold; font-size: 24px; 
-              }
-              .bg-green-600 { background: #16a34a !important; }
-
-              #results-content > div:nth-child(3) { 
-                background: #f9fafb !important; padding: 30px; border: 1px solid #eee; border-radius: 16px; 
-                text-align: center; margin-bottom: 30px;
-              }
-
-              .recharts-responsive-container { width: 750px !important; height: 500px !important; display: block !important; margin: 20px auto !important; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #e5e7eb; }
-              th { background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: bold; border-bottom: 2px solid #e5e7eb; }
-              td { padding: 12px; border-bottom: 1px solid #f3f4f6; font-size: 12px; line-height: 1.5; }
-              
-              footer { border-top: 1px solid #eee; padding-top: 20px; margin-top: 40px; text-align: center; }
-              footer p { margin: 2px 0; color: #999; }
-            `;
-            clonedDoc.head.appendChild(safeStyle);
-
-            // Asegurar visibilidad del radar en el clon
-            const chartDiv = clonedDoc.querySelector('.recharts-responsive-container') as HTMLElement;
-            if (chartDiv) {
-              chartDiv.style.display = 'block';
-              chartDiv.style.visibility = 'visible';
-            }
-          }
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-
-      await html2pdf().set(opt).from(element).save();
-
-    } catch (error: any) {
-      console.error("Error al generar PDF:", error);
-      alert("Para una mejor calidad y evitar errores de compatibilidad, usaremos el asistente de impresión del sistema. \n\nPor favor, selecciona 'Guardar como PDF' en el destino.");
-      window.print();
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const handlePrint = () => {
     window.print();
@@ -180,28 +79,13 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
     <div className="mt-12 space-y-6">
       <div className="flex flex-wrap justify-end gap-3 print:hidden">
         <button
-          onClick={downloadPDF}
-          disabled={isDownloading}
-          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 text-sm disabled:opacity-70"
-        >
-          {isDownloading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-          )}
-          {isDownloading ? "Generando..." : "Descarga Directa PDF"}
-        </button>
-
-        <button
           onClick={handlePrint}
-          className="px-6 py-3 bg-gray-600 text-white rounded-xl font-bold hover:bg-gray-700 shadow-lg shadow-gray-200 transition-all flex items-center gap-2 active:scale-95 text-sm"
+          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 text-sm cursor-pointer"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
-          Imprimir / Guardar como...
+          Imprimir / Guardar como PDF
         </button>
       </div>
 

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { subscribeToAuthChanges, logout } from "../../backend/auth";
-import { userActions } from "../../backend/crud";
+import { userActions, ADMIN_EMAILS } from "../../backend/crud";
 
 const AuthContext = createContext({
   user: null,
@@ -20,7 +20,24 @@ export const AuthProvider = ({ children }) => {
         // Obtener datos adicionales (como el rol) desde Firestore
         try {
           const profile = await userActions.getById(currentUser.uid);
-          setUser({ ...currentUser, ...profile });
+          let finalUser = { ...currentUser, ...profile };
+
+          // Verificación de seguridad: si el email está en la lista de admins
+          // pero el perfil no tiene el rol, lo forzamos y actualizamos Firestore
+          if (currentUser.email && ADMIN_EMAILS.includes(currentUser.email)) {
+            if (finalUser.role !== "admin") {
+              console.log("Forzando rol de administrador para:", currentUser.email);
+              finalUser.role = "admin";
+              // Actualizar en segundo plano para que persista
+              userActions.create(currentUser.uid, {
+                name: currentUser.displayName || profile?.name || "Admin",
+                email: currentUser.email,
+                role: "admin"
+              });
+            }
+          }
+
+          setUser(finalUser);
         } catch (error) {
           console.error("Error fetching user profile:", error);
           setUser(currentUser);

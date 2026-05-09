@@ -20,14 +20,14 @@ const Contact = () => {
     try {
       // 1. Enviar correo vía EmailJS
       await emailjs.send(
-        "service_stoq90h",
-        "template_byed0jf",
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         {
           name: formData.name,
           email: formData.email,
           message: formData.message,
         },
-        "YCo6vta7jhfmlV-ry"
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
 
       // 2. Intentar guardar en Firestore como respaldo (opcional)

@@ -27,8 +27,15 @@ const SigninPage = () => {
       if (!formData.email || !formData.password) {
         throw new Error("Por favor ingresa tu email y contraseña");
       }
-      await signInWithEmail(formData.email, formData.password);
-      router.push("/");
+      const user = await signInWithEmail(formData.email, formData.password);
+      
+      // Obtener datos del usuario desde Firestore para verificar el rol
+      const profile = await userActions.getById(user.uid);
+      if (profile && profile.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión. Verifica tus credenciales.");
     } finally {
@@ -40,8 +47,13 @@ const SigninPage = () => {
     setError("");
     setLoading(true);
     try {
-      await signInWithGoogle();
-      router.push("/");
+      const user = await signInWithGoogle();
+      const profile = await userActions.getById(user.uid);
+      if (profile && profile.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       setError("Error al iniciar sesión con Google");
     } finally {

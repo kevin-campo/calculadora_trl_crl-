@@ -10,6 +10,7 @@ import {
   query,
   where,
   orderBy,
+  onSnapshot,
   serverTimestamp
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -17,6 +18,30 @@ import { db } from "./firebase";
 /**
  * GENERIC CRUD OPERATIONS
  */
+
+// Subscribe to a collection for real-time updates
+export const subscribeToCollection = (collectionName, callback) => {
+  try {
+    const q = collection(db, collectionName);
+    return onSnapshot(q, (querySnapshot) => {
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      // Sort by createdAt descending
+      data.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      
+      callback(data);
+    }, (error) => {
+      console.error(`Error subscribing to ${collectionName}: `, error);
+    });
+  } catch (error) {
+    console.error(`Error setting up subscription for ${collectionName}: `, error);
+    throw error;
+  }
+};
 
 // Create
 export const createDocument = async (collectionName, data) => {
@@ -163,10 +188,15 @@ export const userActions = {
     }
 
     const docRef = doc(db, "users", uid);
-    return setDoc(docRef, { ...userData, updatedAt: serverTimestamp() }, { merge: true });
+    return setDoc(docRef, { 
+      ...userData, 
+      createdAt: data.createdAt || serverTimestamp(),
+      updatedAt: serverTimestamp() 
+    }, { merge: true });
   },
   getById: (uid) => getDocumentById("users", uid),
   getAll: () => getDocuments("users"),
+  subscribe: (callback) => subscribeToCollection("users", callback),
   updateRole: (uid, role) => {
     const docRef = doc(db, "users", uid);
     return updateDoc(docRef, { role, updatedAt: serverTimestamp() });
@@ -177,6 +207,7 @@ export const userActions = {
 export const diagnosticActions = {
   create: (data) => createDocument("diagnostics", data),
   getAll: () => getDocuments("diagnostics"),
+  subscribe: (callback) => subscribeToCollection("diagnostics", callback),
   getByUserId: async (userId) => {
     try {
       if (!userId) {

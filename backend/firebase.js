@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -46,6 +47,7 @@ try {
 // Inicializar servicios solo si el app existe
 export const db = app ? getFirestore(app) : null;
 export const auth = app ? getAuth(app) : null;
+export const storage = app ? getStorage(app) : null;
 
 // Analytics (solo en cliente)
 export const analytics = (typeof window !== "undefined" && app)

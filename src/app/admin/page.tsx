@@ -81,6 +81,9 @@ const AdminDashboard = () => {
   const [selectedDiagnostic, setSelectedDiagnostic] = useState<DiagnosticData | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
+  // Estado para Filtro de Fecha
+  const [selectedDate, setSelectedDate] = useState("");
+
   // Estados para Edición de Diagnóstico (desde Admin)
   const [editDiagModalOpen, setEditDiagModalOpen] = useState(false);
   const [diagToEdit, setDiagToEdit] = useState<DiagnosticData | null>(null);
@@ -198,38 +201,86 @@ const AdminDashboard = () => {
     return diagDate === today || diagDate === yesterday;
   }).length;
 
+  // Filtros
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!selectedDate) return matchesSearch;
+    
+    let userDate = null;
+    if (u.createdAt?.seconds) {
+      userDate = new Date(u.createdAt.seconds * 1000).toISOString().split('T')[0];
+    }
+    
+    return matchesSearch && userDate === selectedDate;
+  });
+
+  const filteredDiagnostics = enrichedDiagnostics.filter(d => {
+    const matchesSearch = d.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         d.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         d.userEmail.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!selectedDate) return matchesSearch;
+    
+    let diagDate = null;
+    if (d.createdAt?.seconds) {
+      diagDate = new Date(d.createdAt.seconds * 1000).toISOString().split('T')[0];
+    } else if (d.timestamp) {
+      diagDate = new Date(d.timestamp).toISOString().split('T')[0];
+    }
+    
+    return matchesSearch && diagDate === selectedDate;
+  });
+
+  const companies = Array.from(new Set(enrichedDiagnostics.map(d => d.companyName))).map(name => {
+    const companyDiags = enrichedDiagnostics.filter(d => d.companyName === name);
+    return {
+      name,
+      count: companyDiags.length,
+      lastDate: companyDiags[0]?.createdAt?.seconds
+    };
+  }).filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!selectedDate) return matchesSearch;
+    
+    const d = c.lastDate ? new Date(c.lastDate * 1000) : null;
+    const companyDate = d ? d.toISOString().split('T')[0] : null;
+    return matchesSearch && companyDate === selectedDate;
+  });
+
   const kpis = [
     {
       id: "users",
-      title: "Total Usuarios",
-      value: users.length.toLocaleString(),
+      title: selectedDate ? "Usuarios (Día)" : "Total Usuarios",
+      value: (selectedDate ? filteredUsers.length : users.length).toLocaleString(),
       icon: <Users size={20} />,
       iconBg: "bg-blue-500/10 text-blue-500",
-      badge: `+${usersToday}`,
-      badgeStyle: "bg-emerald-500/10 text-emerald-500",
-      note: "nuevos hoy",
+      badge: selectedDate ? "Filtrado" : `+${usersToday}`,
+      badgeStyle: selectedDate ? "bg-blue-500/10 text-blue-500" : "bg-emerald-500/10 text-emerald-500",
+      note: selectedDate ? "en esta fecha" : "nuevos hoy",
       tab: "users" as const
     },
     {
       id: "diagnostics",
-      title: "Diagnósticos",
-      value: diagnostics.length.toLocaleString(),
+      title: selectedDate ? "Diagnósticos (Día)" : "Diagnósticos",
+      value: (selectedDate ? filteredDiagnostics.length : diagnostics.length).toLocaleString(),
       icon: <ClipboardCheck size={20} />,
       iconBg: "bg-indigo-500/10 text-indigo-500",
-      badge: `+${diagsSinceYesterday}`,
-      badgeStyle: "bg-indigo-500/10 text-indigo-500",
-      note: "desde ayer",
+      badge: selectedDate ? "Filtrado" : `+${diagsSinceYesterday}`,
+      badgeStyle: selectedDate ? "bg-blue-500/10 text-blue-500" : "bg-indigo-500/10 text-indigo-500",
+      note: selectedDate ? "en esta fecha" : "desde ayer",
       tab: "diagnostics" as const
     },
     {
       id: "companies",
-      title: "Empresas Activas",
-      value: Array.from(new Set(enrichedDiagnostics.map(d => d.companyName))).length.toString(),
+      title: selectedDate ? "Empresas (Día)" : "Empresas Activas",
+      value: (selectedDate ? Array.from(new Set(filteredDiagnostics.map(d => d.companyName))).length : Array.from(new Set(enrichedDiagnostics.map(d => d.companyName))).length).toString(),
       icon: <Briefcase size={20} />,
       iconBg: "bg-amber-500/10 text-amber-500",
-      badge: "En vivo",
-      badgeStyle: "bg-amber-500/10 text-amber-500",
-      note: "organizaciones",
+      badge: selectedDate ? "Filtrado" : "En vivo",
+      badgeStyle: selectedDate ? "bg-blue-500/10 text-blue-500" : "bg-amber-500/10 text-amber-500",
+      note: selectedDate ? "en esta fecha" : "organizaciones",
       tab: "companies" as const
     },
     {
@@ -243,27 +294,6 @@ const AdminDashboard = () => {
       tab: "activity" as const
     },
   ];
-
-  // Filtros
-  const filteredUsers = users.filter(u => 
-    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredDiagnostics = enrichedDiagnostics.filter(d => 
-    d.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    d.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.userEmail.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const companies = Array.from(new Set(enrichedDiagnostics.map(d => d.companyName))).map(name => {
-    const companyDiags = enrichedDiagnostics.filter(d => d.companyName === name);
-    return {
-      name,
-      count: companyDiags.length,
-      lastDate: companyDiags[0]?.createdAt?.seconds
-    };
-  }).filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   // Utilidades para Notificaciones
   const addNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -486,6 +516,25 @@ const AdminDashboard = () => {
             )}
           </div>
           <div className="flex items-center gap-3">
+            {/* Filtro de Fecha Dinámica */}
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm px-3 py-1.5">
+              <Calendar size={16} className={selectedDate ? "text-blue-500" : "text-gray-400"} />
+              <input 
+                type="date" 
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="bg-transparent border-none text-xs font-bold focus:outline-none cursor-pointer text-gray-700 dark:text-gray-200"
+              />
+              {selectedDate && (
+                <button 
+                  onClick={() => setSelectedDate("")}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
             {activeTab !== "overview" && (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
@@ -498,10 +547,6 @@ const AdminDashboard = () => {
                 />
               </div>
             )}
-            <div className="px-4 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-2">
-              <Calendar size={16} className="text-gray-400" />
-              <span className="text-sm font-medium">{new Date().toLocaleDateString()}</span>
-            </div>
           </div>
         </div>
 

@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { diagnosticActions } from "@/../backend/crud";
+import { diagnosticActions, userActions } from "@/../backend/crud";
 import { updateUserProfileInfo, logout } from "@/../backend/auth";
+import { storage } from "@/../backend/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Link from "next/link";
+import Image from "next/image";
 import { 
   User, 
   Mail, 
@@ -22,17 +25,26 @@ import {
   Info,
   X,
   Pencil,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Filter,
+  ArrowRight,
+  ChevronRight,
+  Clock,
+  LayoutGrid,
+  ShieldCheck,
+  Users
 } from "lucide-react";
 
 const ProfilePage = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshUser } = useAuth();
   const [diagnostics, setDiagnostics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
 
   // Estados para Edición de Diagnóstico
   const [editDiagModalOpen, setEditDiagModalOpen] = useState(false);
@@ -164,6 +176,39 @@ const ProfilePage = () => {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      addNotification("Por favor, selecciona una imagen válida", "error");
+      return;
+    }
+
+    // Validar tamaño (máximo 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      addNotification("La imagen es muy pesada (máximo 2MB)", "error");
+      return;
+    }
+
+    setPhotoLoading(true);
+    try {
+      const storageRef = ref(storage, `profiles/${user.uid}/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      await updateUserProfileInfo(user.displayName, downloadURL);
+      await refreshUser();
+      addNotification("Foto de perfil actualizada");
+    } catch (error) {
+      console.error("Error al subir foto:", error);
+      addNotification("Error al subir la imagen", "error");
+    } finally {
+      setPhotoLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     showConfirm(
       "Cerrar Sesión",
@@ -206,62 +251,116 @@ const ProfilePage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
-      <Breadcrumb
-        pageName="Mi Perfil"
-        description="Gestiona tus proyectos y revisa el historial de tus diagnósticos TRL & CRL."
-      />
+    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0F2D] pt-32 md:pt-40 pb-20">
+      {/* Dynamic Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
 
-      <section className="pb-24 pt-12">
-        <div className="container">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* User Info Sidebar */}
-            <aside className="w-full lg:w-1/3">
-              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden sticky top-32">
-                {/* Profile Banner/Header */}
-                <div className="h-24 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
-                
-                <div className="px-8 pb-8 -mt-12">
-                  <div className="flex flex-col items-center">
-                    <div className="relative mb-4 h-28 w-28 overflow-hidden rounded-3xl border-4 border-white dark:border-gray-800 shadow-xl bg-white dark:bg-gray-700">
-                      {user.photoURL ? (
-                        <img src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" />
+      <div className="container relative z-10">
+        {/* Header Section */}
+        <div className="mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
+                <LayoutGrid size={12} />
+                Panel de Control
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                Mi <span className="text-primary">Perfil</span>
+              </h1>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Link
+                href="/#calculator"
+                className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-white font-black text-sm hover:scale-105 transition-all shadow-lg shadow-primary/25"
+              >
+                <Plus size={18} />
+                Nuevo Diagnóstico
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column: User Card & Stats */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="bg-white dark:bg-white/5 backdrop-blur-md rounded-[2.5rem] border border-slate-200 dark:border-white/10 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500">
+              <div className="h-32 bg-gradient-to-br from-primary via-blue-600 to-indigo-700 relative">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+              </div>
+              
+              <div className="px-8 pb-8 -mt-16 relative">
+                <div className="flex flex-col items-center">
+                  <div className="relative mb-6 group">
+                    <div className="relative h-32 w-32 overflow-hidden rounded-[2rem] border-4 border-white dark:border-[#0A0F2D] shadow-2xl bg-slate-100 dark:bg-slate-800 transition-transform duration-500 group-hover:scale-105">
+                      {photoLoading ? (
+                        <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800">
+                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                        </div>
+                      ) : user.photoURL ? (
+                        <Image 
+                          src={user.photoURL} 
+                          alt={user.displayName || "Usuario"} 
+                          fill
+                          className="object-cover" 
+                        />
                       ) : (
-                        <div className="bg-blue-500 flex h-full w-full items-center justify-center text-4xl font-black text-white">
+                        <div className="bg-gradient-to-br from-primary to-blue-700 flex h-full w-full items-center justify-center text-4xl font-black text-white uppercase">
                           {user.displayName?.[0] || user.email?.[0]}
                         </div>
                       )}
                     </div>
+                    
+                    {/* Photo Upload Trigger */}
+                    <label className="absolute bottom-1 right-1 h-10 w-10 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 flex items-center justify-center cursor-pointer hover:bg-primary hover:text-white dark:hover:bg-primary transition-all group/btn">
+                      <Camera size={18} />
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        disabled={photoLoading}
+                      />
+                    </label>
+                  </div>
 
-                    <div className="text-center w-full">
-                      <h4 className="text-xl font-black text-gray-900 dark:text-white mb-1">
-                        {user.displayName || "Usuario"}
-                      </h4>
-                      <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-6">
-                        <Mail size={14} />
-                        <span className="text-sm font-medium">{user.email}</span>
-                      </div>
-                      <button
-                        onClick={() => setEditModalOpen(true)}
-                        className="flex items-center justify-center gap-2 mx-auto px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold hover:bg-blue-500 hover:text-white transition-all cursor-pointer"
-                      >
-                        <Settings size={14} />
-                        Configurar Perfil
-                      </button>
+                  <div className="text-center w-full mb-8">
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">
+                      {user.displayName || "Usuario"}
+                    </h2>
+                    <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 font-bold text-sm">
+                      <Mail size={14} className="text-primary" />
+                      {user.email}
                     </div>
                   </div>
 
-                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700 space-y-3">
-                    <Link
-                      href="/#calculator"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-blue-600 px-6 py-4 text-sm font-black text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+                  <div className="grid grid-cols-2 gap-4 w-full mb-8">
+                    <div className="bg-slate-50 dark:bg-white/5 p-4 rounded-3xl border border-slate-100 dark:border-white/5 text-center">
+                      <div className="text-2xl font-black text-primary">{diagnostics.length}</div>
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Proyectos</div>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-white/5 p-4 rounded-3xl border border-slate-100 dark:border-white/5 text-center">
+                      <div className="text-2xl font-black text-emerald-500">
+                        {diagnostics.length > 0 ? Math.max(...diagnostics.map(d => d.summary?.pct || 0)) : 0}%
+                      </div>
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Madurez Max</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 w-full">
+                    <button
+                      onClick={() => setEditModalOpen(true)}
+                      className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-[#0A0F2D] font-black text-sm hover:opacity-90 transition-all cursor-pointer"
                     >
-                      <Plus size={18} />
-                      Nuevo Diagnóstico
-                    </Link>
+                      <Settings size={18} />
+                      Editar Perfil
+                    </button>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-4 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-red-500 hover:border-red-500 transition-all cursor-pointer"
+                      className="flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-600 font-black text-sm hover:bg-red-600 hover:text-white transition-all cursor-pointer"
                     >
                       <LogOut size={18} />
                       Cerrar Sesión
@@ -269,131 +368,150 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </div>
-            </aside>
+            </div>
 
-            {/* Diagnostics List */}
-            <div className="w-full lg:w-2/3">
-              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                  <div>
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
-                      <ClipboardCheck className="text-blue-600" size={28} />
-                      Tus Proyectos
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Gestiona tu historial de madurez tecnológica y comercial
-                    </p>
-                  </div>
-                  <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-black uppercase tracking-wider">
-                    {diagnostics.length} Diagnósticos
-                  </div>
+            {/* Support/Info Card */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-primary/20 dark:to-blue-900/20 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                <Info size={120} />
+              </div>
+              <h4 className="text-xl font-black mb-3 relative z-10">¿Necesitas ayuda?</h4>
+              <p className="text-slate-400 dark:text-blue-100/60 text-sm font-medium mb-6 relative z-10">
+                Consulta nuestra guía detallada sobre los niveles TRL y CRL para entender mejor tus resultados.
+              </p>
+              <Link href="/docs" className="inline-flex items-center gap-2 text-primary dark:text-white font-black text-sm group/link relative z-10">
+                Ver Documentación
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Column: Diagnostics List */}
+          <div className="lg:col-span-8">
+            <div className="bg-white dark:bg-white/5 backdrop-blur-md rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 md:p-10 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                <div>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                    <ClipboardCheck className="text-primary" size={28} />
+                    Mis Diagnósticos
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">
+                    Historial de evaluaciones técnicas y comerciales
+                  </p>
                 </div>
+              </div>
 
-                {diagnostics.length === 0 ? (
-                  <div className="py-20 text-center bg-gray-50 dark:bg-gray-900/50 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                    <div className="mb-6 flex justify-center text-gray-300">
-                      <ClipboardCheck size={80} />
-                    </div>
-                    <p className="text-gray-500 dark:text-gray-400 mb-8 text-lg font-medium max-w-xs mx-auto">
-                      Aún no has realizado ningún diagnóstico técnico o comercial.
-                    </p>
-                    <Link
-                      href="/#calculator"
-                      className="bg-blue-600 hover:bg-blue-700 inline-flex items-center gap-2 rounded-2xl px-10 py-4 text-base font-black text-white transition-all shadow-xl shadow-blue-500/20"
-                    >
-                      <Plus size={20} />
-                      Empezar Ahora
-                    </Link>
+              {diagnostics.length === 0 ? (
+                <div className="py-24 text-center">
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-slate-50 dark:bg-white/5 text-slate-300 dark:text-white/10 mb-6">
+                    <ClipboardCheck size={48} />
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-6">
-                    {diagnostics.map((diag) => (
-                      <div
-                        key={diag.id}
-                        className="group bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 transition-all hover:shadow-xl hover:border-blue-500/30 relative"
-                      >
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600">
-                              <Building2 size={24} />
-                            </div>
-                            <div>
-                              <h4 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                  <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2">
+                    Aún no tienes diagnósticos
+                  </h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-8 max-w-xs mx-auto">
+                    Comienza tu primera evaluación técnica y comercial ahora mismo.
+                  </p>
+                  <Link
+                    href="/#calculator"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary text-white font-black hover:scale-105 transition-all shadow-lg shadow-primary/25"
+                  >
+                    Crear Primer Diagnóstico
+                    <ChevronRight size={18} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {diagnostics.map((diag) => (
+                    <div
+                      key={diag.id}
+                      className="group bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-[2rem] p-6 md:p-8 transition-all hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20 relative overflow-hidden"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-start gap-5">
+                          <div className="w-16 h-16 shrink-0 rounded-2xl bg-white dark:bg-[#0A0F2D] border border-slate-100 dark:border-white/10 flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform duration-500">
+                            <Building2 size={28} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">
                                 {diag.profile?.title || "Proyecto sin título"}
                               </h4>
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 font-medium">
-                                <span className="flex items-center gap-1.5">
-                                  <Building2 size={12} />
-                                  {diag.profile?.org || "Sin Organización"}
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                  <Calendar size={12} />
-                                  {new Date(diag.timestamp).toLocaleDateString()}
-                                </span>
-                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="flex flex-col items-end">
-                              <span className="text-2xl font-black text-blue-600">{diag.summary?.pct}%</span>
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Madurez</span>
-                            </div>
-                            <div className="h-12 w-1 bg-gray-100 dark:bg-gray-700 rounded-full mx-1"></div>
-                            <div className="flex flex-col items-end">
-                              <span className="text-2xl font-black text-emerald-500">TRL {Math.ceil((diag.summary?.pct || 0)/100*9)}</span>
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Nivel Estimado</span>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
+                                <Building2 size={14} className="text-primary/60" />
+                                {diag.profile?.org || "Sin Organización"}
+                              </span>
+                              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
+                                <Clock size={14} className="text-primary/60" />
+                                {new Date(diag.timestamp).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </span>
                             </div>
                           </div>
                         </div>
 
-                        <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm line-clamp-2 leading-relaxed">
-                          {diag.profile?.description || "Sin descripción proporcionada."}
-                        </p>
-
-                        <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-700">
-                          <div className="flex items-center gap-2">
-                            <Link
-                              href={`/diagnosis/${diag.id}`}
-                              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black hover:bg-blue-600 hover:text-white transition-all"
-                            >
-                              <Eye size={14} />
-                              Ver Reporte
-                            </Link>
-                            <button
-                              onClick={() => handleOpenEditDiag(diag)}
-                              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-xs font-black hover:bg-amber-500 hover:text-white transition-all cursor-pointer"
-                            >
-                              <Pencil size={14} />
-                              Editar
-                            </button>
+                        <div className="flex items-center gap-4 bg-white dark:bg-[#0A0F2D]/50 p-4 rounded-2xl border border-slate-100 dark:border-white/10 shadow-sm">
+                          <div className="text-right">
+                            <div className="text-2xl font-black text-primary leading-none">{diag.summary?.pct}%</div>
+                            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Madurez</div>
                           </div>
-                          <button
-                            onClick={() => handleDeleteDiagnostic(diag.id)}
-                            className="p-2.5 rounded-xl text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
-                            title="Eliminar proyecto"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="h-10 w-[1px] bg-slate-100 dark:bg-white/10"></div>
+                          <div className="text-right">
+                            <div className="text-2xl font-black text-emerald-500 leading-none">TRL {Math.ceil((diag.summary?.pct || 0)/100*9)}</div>
+                            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Nivel TRL</div>
+                          </div>
                         </div>
                       </div>
-                    ))}
 
-                    <div className="mt-8">
-                      <Link
-                        href="/#calculator"
-                        className="flex items-center justify-center gap-3 w-full rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 p-6 text-gray-400 hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all font-bold cursor-pointer"
-                      >
-                        <Plus size={24} />
-                        Agregar Nuevo Proyecto al Historial
-                      </Link>
+                      <p className="text-slate-500 dark:text-slate-400 mt-6 text-sm font-medium line-clamp-2 leading-relaxed relative z-10">
+                        {diag.profile?.description || "Sin descripción proporcionada para este diagnóstico."}
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-100 dark:border-white/10 relative z-10">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                          <Link
+                            href={`/diagnosis/${diag.id}`}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-white text-xs font-black hover:opacity-90 transition-all shadow-md shadow-primary/20"
+                          >
+                            <Eye size={16} />
+                            Detalles
+                          </Link>
+                          <button
+                            onClick={() => handleOpenEditDiag(diag)}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-[#0A0F2D] text-xs font-black hover:opacity-90 transition-all"
+                          >
+                            <Pencil size={16} />
+                            Editar
+                          </button>
+                        </div>
+                        
+                        <button
+                          onClick={() => handleDeleteDiagnostic(diag.id)}
+                          className="flex items-center gap-2 px-4 py-3 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-xs font-bold"
+                        >
+                          <Trash2 size={16} />
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
+                  ))}
+                  
+                  <div className="pt-4">
+                    <Link
+                      href="/#calculator"
+                      className="flex items-center justify-center gap-3 w-full rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-white/10 p-8 text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all font-black group"
+                    >
+                      <Plus size={24} className="group-hover:rotate-90 transition-transform duration-500" />
+                      Agregar Nuevo Proyecto
+                    </Link>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Modal de Edición de Perfil */}
       {editModalOpen && (

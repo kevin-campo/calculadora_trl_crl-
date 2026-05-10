@@ -69,7 +69,7 @@ const SigninPage = () => {
         router.push("/");
       }
     } catch (err: any) {
-      setError("Error al iniciar sesión con Google");
+      setError(err.message || "Error al iniciar sesión con Google");
     } finally {
       setLoading(false);
     }

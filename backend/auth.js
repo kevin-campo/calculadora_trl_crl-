@@ -118,18 +118,24 @@ export const signInWithGithub = async () => {
 export const logout = () => signOut(auth);
 
 // Actualizar información del perfil
-export const updateUserProfileInfo = async (name) => {
+export const updateUserProfileInfo = async (name, photoURL) => {
   const user = auth.currentUser;
   if (!user) throw new Error("No hay un usuario autenticado");
 
   try {
+    const updates = {};
+    if (name) updates.displayName = name;
+    if (photoURL) updates.photoURL = photoURL;
+
     // 1. Actualizar en Firebase Auth
-    await updateProfile(user, { displayName: name });
+    await updateProfile(user, updates);
 
     // 2. Actualizar en Firestore
-    await userActions.create(user.uid, {
-      name: name,
-    });
+    const firestoreUpdates = {};
+    if (name) firestoreUpdates.name = name;
+    if (photoURL) firestoreUpdates.photoURL = photoURL;
+
+    await userActions.create(user.uid, firestoreUpdates);
 
     return user;
   } catch (error) {

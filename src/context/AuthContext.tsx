@@ -8,42 +8,58 @@ const AuthContext = createContext({
   user: null,
   loading: true,
   logout: () => { },
+  refreshUser: async () => { },
 });
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUserProfile = async (currentUser) => {
+    if (!currentUser) return null;
+    try {
+      const profile = await userActions.getById(currentUser.uid);
+      
+      let finalUser = {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        displayName: currentUser.displayName || profile?.name,
+        photoURL: currentUser.photoURL || profile?.photoURL,
+        ...profile,
+      };
+
+      if (currentUser.email && ADMIN_EMAILS.includes(currentUser.email)) {
+        if (finalUser.role !== "admin") {
+          finalUser.role = "admin";
+          userActions.create(currentUser.uid, {
+            name: currentUser.displayName || profile?.name || "Admin",
+            email: currentUser.email, 
+            role: "admin"
+          });
+        }
+      }
+      return finalUser;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return currentUser;
+    }
+  };
+
+  const refreshUser = async () => {
+    const { auth } = await import("../../backend/firebase");
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const updatedUser = await fetchUserProfile(currentUser);
+      setUser(updatedUser);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges(async (currentUser) => {
       setLoading(true);
       if (currentUser) {
-        // Obtener datos adicionales (como el rol) desde Firestore
-        try {
-          const profile = await userActions.getById(currentUser.uid);
-          // Spread currentUser (Firebase User) carefully or merge with profile
-          let finalUser = { ...currentUser, ...profile };
-
-          // Verificación de seguridad: si el email está en la lista de admins
-          // pero el perfil no tiene el rol, lo forzamos y actualizamos Firestore
-          if (currentUser.email && ADMIN_EMAILS.includes(currentUser.email)) {
-            if (finalUser.role !== "admin") {
-              console.log("Forzando rol de administrador para:", currentUser.email);
-              finalUser.role = "admin";
-              // Actualizar para que persista el rol de admin
-              userActions.create(currentUser.uid, {
-                name: currentUser.displayName || profile?.name || "Admin",
-                email: currentUser.email, 
-                role: "admin"
-              });
-            }
-          }
-
-          setUser(finalUser);
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          setUser(currentUser);
-        }
+        const finalUser = await fetchUserProfile(currentUser);
+        setUser(finalUser);
       } else {
         setUser(null);
       }
@@ -54,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, loading, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

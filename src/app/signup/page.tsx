@@ -57,7 +57,7 @@ const SignupPage = () => {
       await signInWithGoogle();
       router.push("/");
     } catch (err: any) {
-      setError("Error al registrarse con Google");
+      setError(err.message || "Error al registrarse con Google");
     } finally {
       setLoading(false);
     }

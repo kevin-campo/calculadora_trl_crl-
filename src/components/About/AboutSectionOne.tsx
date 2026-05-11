@@ -78,9 +78,9 @@ const AboutSectionOne = () => {
                 </div>
 
                 <div className="space-y-5">
-                  <List boldText="Nivel 1" text="Identificación de la necesidad del mercado y propuesta de valor única." />
-                  <List boldText="Nivel 3" text="Validación directa con clientes potenciales y adoptadores tempranos." />
-                  <List boldText="Nivel 5" text="Modelo de negocio validado y preparación para expansión comercial." />
+                  <List boldText="Nivel 1-3" text="Identificación de la necesidad del mercado y propuesta de valor única." />
+                  <List boldText="Nivel 4-6" text="Validación directa con clientes potenciales y adoptadores tempranos." />
+                  <List boldText="Nivel 7-9" text="Modelo de negocio validado y preparación para expansión comercial." />
                 </div>
               </div>
             </div>

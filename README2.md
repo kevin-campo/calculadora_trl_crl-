@@ -86,3 +86,5 @@ npm run test:seed
 - `npm run dev`: Inicia el servidor de desarrollo en `http://localhost:3000`.
 - `npm run build`: Genera la versión de producción optimizada.
 - `npm run test:seed`: Ejecuta las validaciones y carga datos de prueba.
+
+holaaa

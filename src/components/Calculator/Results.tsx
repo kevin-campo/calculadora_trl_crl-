@@ -12,7 +12,7 @@ const Radar = dynamic(() => import("recharts").then(mod => mod.Radar), { ssr: fa
 const Tooltip = dynamic(() => import("recharts").then(mod => mod.Tooltip), { ssr: false });
 
 type Props = {
-  profile: { org: string; title: string; description: string };
+  profile: { org: string; title: string; description: string; ownerName?: string };
   answers: Record<string, number | null>;
   questions: Array<{ id: string; title: string; options: string[] }>;
 };

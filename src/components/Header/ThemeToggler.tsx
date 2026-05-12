@@ -1,11 +1,20 @@
 import { useTheme } from "next-themes";
 
-const ThemeToggler = () => {
+type ThemeTogglerProps = {
+  /** Barra sobre fondo oscuro/hero: icono y fondo del botón en claro */
+  heroOverlay?: boolean;
+};
+
+const ThemeToggler = ({ heroOverlay }: ThemeTogglerProps) => {
   const { theme, setTheme } = useTheme();
   return (
     <button aria-label='theme toggler'
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex items-center justify-center text-black rounded-full cursor-pointer bg-gray-2 dark:bg-dark-bg h-9 w-9 dark:text-white md:h-14 md:w-14"
+      className={
+        heroOverlay
+          ? "flex items-center justify-center rounded-full cursor-pointer text-white bg-white/10 hover:bg-white/20 border border-white/15 h-9 w-9 md:h-14 md:w-14 transition-colors"
+          : "flex items-center justify-center text-black rounded-full cursor-pointer bg-gray-2 dark:bg-dark-bg h-9 w-9 dark:text-white md:h-14 md:w-14"
+      }
     >
       <svg
         viewBox="0 0 23 23"

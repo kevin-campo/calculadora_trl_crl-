@@ -1,285 +1,159 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Hls from "hls.js";
+import { motion } from "motion/react";
+import { ArrowRight } from "lucide-react";
+
+const videoSrc =
+  "https://stream.mux.com/T6oQJQ02cQ6N01TR6iHwZkKFkbepS34dkkIc9iukgy400g.m3u8";
+const posterSrc =
+  "https://images.unsplash.com/photo-1647356191320-d7a1f80ca777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjB0ZWNobm9sb2d5JTIwbmV1cmFsJTIwbmV0d29ya3xlbnwxfHx8fDE3Njg5NzIyNTV8MA&ixlib=rb-4.1.0&q=80&w=1080";
 
 const Hero = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch((e) => console.log("Auto-play prevented:", e));
+      });
+      return () => {
+        hls.destroy();
+      };
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = videoSrc;
+      video.addEventListener("loadedmetadata", () => {
+        video.play().catch((e) => console.log("Auto-play prevented:", e));
+      });
+    }
+  }, []);
+
   return (
-    <>
-      <section
-        id="home"
-        className="relative z-10 overflow-hidden bg-white pb-16 pt-[120px] dark:bg-gray-dark md:pb-[120px] md:pt-[150px] xl:pb-[160px] xl:pt-[180px] 2xl:pb-[200px] 2xl:pt-[210px]"
-      >
-        <div className="container">
-          <div className="-mx-4 flex flex-wrap">
-            <div className="w-full px-4">
-              <div className="mx-auto max-w-[800px] text-center">
-                <h1 className="mb-5 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
-                  Diagnóstico de Madurez Tecnológica y Comercial
-                </h1>
-                <p className="mb-12 text-base leading-relaxed! text-body-color dark:text-body-color-dark sm:text-lg md:text-xl">
-                  Herramienta integral para evaluar el nivel de madurez tecnológica y comercial
-                  de tu propuesta de innovación. Analiza 7 dimensiones clave y obtén un diagnóstico
-                  completo con recomendaciones personalizadas para el desarrollo de tu proyecto.
-                </p>
-                <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-                  <Link
-                    href="#calculator"
-                    className="rounded-xs bg-primary px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-primary/80"
-                  >
-                    Comenzar Diagnóstico
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="inline-block rounded-xs bg-black px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-black/90 dark:bg-white/10 dark:text-white dark:hover:bg-white/5"
-                  >
-                    Contacto
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="absolute right-0 top-0 z-[-1] opacity-30 lg:opacity-100">
-          <svg
-            width="450"
-            height="556"
-            viewBox="0 0 450 556"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+    <section
+      id="home"
+      className="relative w-full min-h-screen overflow-hidden"
+      style={{ backgroundColor: "#000000", color: "white" }}
+    >
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ opacity: 0.6 }}
+        muted
+        loop
+        playsInline
+        poster={posterSrc}
+      />
+
+      {/* Video Overlay */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+
+      {/* Decorative Gradients */}
+      <div
+        className="absolute rounded-full mix-blend-screen"
+        style={{
+          top: "-20%",
+          left: "20%",
+          width: 600,
+          height: 600,
+          background: "rgba(30, 58, 138, 0.2)",
+          filter: "blur(120px)",
+        }}
+      />
+      <div
+        className="absolute rounded-full mix-blend-screen"
+        style={{
+          bottom: "-10%",
+          right: "20%",
+          width: 500,
+          height: 500,
+          background: "rgba(49, 46, 129, 0.2)",
+          filter: "blur(120px)",
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 mt-20 flex flex-col items-center text-center mx-auto max-w-5xl px-4 min-h-screen justify-center space-y-12">
+        {/* Pre-headline */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl sm:text-5xl lg:text-[48px] leading-[1.1] text-white"
+          style={{ fontFamily: "'Instrument Serif', serif" }}
+        >
+          Diagnóstico inteligente de innovación
+        </motion.p>
+
+        {/* Main Headline */}
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="text-6xl sm:text-8xl lg:text-[136px] font-semibold leading-[0.9] tracking-tighter bg-gradient-to-b from-white via-white to-[#b4c0ff] bg-clip-text text-transparent"
+          style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+        >
+          Evalúa tu TRL
+        </motion.h1>
+
+        {/* Subheadline */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="text-lg sm:text-[20px] leading-[1.65] text-white max-w-xl"
+          style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+        >
+          Herramienta integral para evaluar el nivel de madurez tecnológica y
+          comercial de tu propuesta de innovación. Analiza 7 dimensiones clave y
+          obtén un diagnóstico completo.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="flex flex-col sm:flex-row gap-6 items-center"
+        >
+          {/* Primary Button */}
+          <Link
+            href="#calculator"
+            className="group flex items-center gap-3 pl-6 pr-2 py-2 rounded-full bg-white transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105"
           >
-            <circle
-              cx="277"
-              cy="63"
-              r="225"
-              fill="url(#paint0_linear_25:217)"
-            />
-            <circle
-              cx="17.9997"
-              cy="182"
-              r="18"
-              fill="url(#paint1_radial_25:217)"
-            />
-            <circle
-              cx="76.9997"
-              cy="288"
-              r="34"
-              fill="url(#paint2_radial_25:217)"
-            />
-            <circle
-              cx="325.486"
-              cy="302.87"
-              r="180"
-              transform="rotate(-37.6852 325.486 302.87)"
-              fill="url(#paint3_linear_25:217)"
-            />
-            <circle
-              opacity="0.8"
-              cx="184.521"
-              cy="315.521"
-              r="132.862"
-              transform="rotate(114.874 184.521 315.521)"
-              stroke="url(#paint4_linear_25:217)"
-            />
-            <circle
-              opacity="0.8"
-              cx="356"
-              cy="290"
-              r="179.5"
-              transform="rotate(-30 356 290)"
-              stroke="url(#paint5_linear_25:217)"
-            />
-            <circle
-              opacity="0.8"
-              cx="191.659"
-              cy="302.659"
-              r="133.362"
-              transform="rotate(133.319 191.659 302.659)"
-              fill="url(#paint6_linear_25:217)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_25:217"
-                x1="-54.5003"
-                y1="-178"
-                x2="222"
-                y2="288"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" />
-                <stop offset="1" stopColor="#4A6CF7" stopOpacity="0" />
-              </linearGradient>
-              <radialGradient
-                id="paint1_radial_25:217"
-                cx="0"
-                cy="0"
-                r="1"
-                gradientUnits="userSpaceOnUse"
-                gradientTransform="translate(17.9997 182) rotate(90) scale(18)"
-              >
-                <stop offset="0.145833" stopColor="#4A6CF7" stopOpacity="0" />
-                <stop offset="1" stopColor="#4A6CF7" stopOpacity="0.08" />
-              </radialGradient>
-              <radialGradient
-                id="paint2_radial_25:217"
-                cx="0"
-                cy="0"
-                r="1"
-                gradientUnits="userSpaceOnUse"
-                gradientTransform="translate(76.9997 288) rotate(90) scale(34)"
-              >
-                <stop offset="0.145833" stopColor="#4A6CF7" stopOpacity="0" />
-                <stop offset="1" stopColor="#4A6CF7" stopOpacity="0.08" />
-              </radialGradient>
-              <linearGradient
-                id="paint3_linear_25:217"
-                x1="226.775"
-                y1="-66.1548"
-                x2="292.157"
-                y2="351.421"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" />
-                <stop offset="1" stopColor="#4A6CF7" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient
-                id="paint4_linear_25:217"
-                x1="184.521"
-                y1="182.159"
-                x2="184.521"
-                y2="448.882"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" />
-                <stop offset="1" stopColor="white" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient
-                id="paint5_linear_25:217"
-                x1="356"
-                y1="110"
-                x2="356"
-                y2="470"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" />
-                <stop offset="1" stopColor="white" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient
-                id="paint6_linear_25:217"
-                x1="118.524"
-                y1="29.2497"
-                x2="166.965"
-                y2="338.63"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" />
-                <stop offset="1" stopColor="#4A6CF7" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <div className="absolute bottom-0 left-0 z-[-1] opacity-30 lg:opacity-100">
-          <svg
-            width="364"
-            height="201"
-            viewBox="0 0 364 201"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+            <span
+              className="font-medium text-lg"
+              style={{
+                fontFamily: "'Instrument Sans', sans-serif",
+                color: "#0a0400",
+              }}
+            >
+              Comenzar Diagnóstico
+            </span>
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3054ff] group-hover:bg-[#2040e0] transition-colors">
+              <ArrowRight className="w-5 h-5 text-white" />
+            </span>
+          </Link>
+
+          {/* Secondary Button */}
+          <Link
+            href="/contact"
+            className="group flex items-center gap-2 px-4 py-2 rounded-lg text-white/70 hover:text-white backdrop-blur-sm hover:bg-white/5 transition-all duration-300"
           >
-            <path
-              d="M5.88928 72.3303C33.6599 66.4798 101.397 64.9086 150.178 105.427C211.155 156.076 229.59 162.093 264.333 166.607C299.076 171.12 337.718 183.657 362.889 212.24"
-              stroke="url(#paint0_linear_25:218)"
-            />
-            <path
-              d="M-22.1107 72.3303C5.65989 66.4798 73.3965 64.9086 122.178 105.427C183.155 156.076 201.59 162.093 236.333 166.607C271.076 171.12 309.718 183.657 334.889 212.24"
-              stroke="url(#paint1_linear_25:218)"
-            />
-            <path
-              d="M-53.1107 72.3303C-25.3401 66.4798 42.3965 64.9086 91.1783 105.427C152.155 156.076 170.59 162.093 205.333 166.607C240.076 171.12 278.718 183.657 303.889 212.24"
-              stroke="url(#paint2_linear_25:218)"
-            />
-            <path
-              d="M-98.1618 65.0889C-68.1416 60.0601 4.73364 60.4882 56.0734 102.431C120.248 154.86 139.905 161.419 177.137 166.956C214.37 172.493 255.575 186.165 281.856 215.481"
-              stroke="url(#paint3_linear_25:218)"
-            />
-            <circle
-              opacity="0.8"
-              cx="214.505"
-              cy="60.5054"
-              r="49.7205"
-              transform="rotate(-13.421 214.505 60.5054)"
-              stroke="url(#paint4_linear_25:218)"
-            />
-            <circle cx="220" cy="63" r="43" fill="url(#paint5_radial_25:218)" />
-            <defs>
-              <linearGradient
-                id="paint0_linear_25:218"
-                x1="184.389"
-                y1="69.2405"
-                x2="184.389"
-                y2="212.24"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" stopOpacity="0" />
-                <stop offset="1" stopColor="#4A6CF7" />
-              </linearGradient>
-              <linearGradient
-                id="paint1_linear_25:218"
-                x1="156.389"
-                y1="69.2405"
-                x2="156.389"
-                y2="212.24"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" stopOpacity="0" />
-                <stop offset="1" stopColor="#4A6CF7" />
-              </linearGradient>
-              <linearGradient
-                id="paint2_linear_25:218"
-                x1="125.389"
-                y1="69.2405"
-                x2="125.389"
-                y2="212.24"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" stopOpacity="0" />
-                <stop offset="1" stopColor="#4A6CF7" />
-              </linearGradient>
-              <linearGradient
-                id="paint3_linear_25:218"
-                x1="93.8507"
-                y1="67.2674"
-                x2="89.9278"
-                y2="210.214"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" stopOpacity="0" />
-                <stop offset="1" stopColor="#4A6CF7" />
-              </linearGradient>
-              <linearGradient
-                id="paint4_linear_25:218"
-                x1="214.505"
-                y1="10.2849"
-                x2="212.684"
-                y2="99.5816"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#4A6CF7" />
-                <stop offset="1" stopColor="#4A6CF7" stopOpacity="0" />
-              </linearGradient>
-              <radialGradient
-                id="paint5_radial_25:218"
-                cx="0"
-                cy="0"
-                r="1"
-                gradientUnits="userSpaceOnUse"
-                gradientTransform="translate(220 63) rotate(90) scale(43)"
-              >
-                <stop offset="0.145833" stopColor="white" stopOpacity="0" />
-                <stop offset="1" stopColor="white" stopOpacity="0.08" />
-              </radialGradient>
-            </defs>
-          </svg>
-        </div>
-      </section>
-    </>
+            <span>Contacto</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
+      </div>
+    </section>
   );
 };
 

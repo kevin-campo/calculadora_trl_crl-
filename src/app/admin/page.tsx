@@ -63,8 +63,9 @@ interface DiagnosticData {
   score?: number;
   summary?: { pct: number; total: number; max: number };
   createdAt?: { seconds: number };
-  profile?: { org: string; title: string };
+  profile?: { org: string; title: string; description?: string };
   timestamp?: string;
+  answers?: Record<string, number>;
 }
 
 const AdminDashboard = () => {

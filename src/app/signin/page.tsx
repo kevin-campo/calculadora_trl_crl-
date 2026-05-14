@@ -76,7 +76,7 @@ const SigninPage = () => {
   };
 
   return (
-    <main className="min-h-screen relative flex items-center justify-center bg-[#f8faff] dark:bg-black overflow-hidden px-4 pt-32 pb-20 transition-colors duration-300">
+    <main className="min-h-screen relative flex items-center justify-center bg-[#f8faff] dark:bg-black overflow-hidden px-4 py-16 sm:py-20 transition-colors duration-300">
       {/* Background Shapes */}
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-blue-600/10 dark:bg-blue-600/20 rounded-full blur-[120px]"></div>

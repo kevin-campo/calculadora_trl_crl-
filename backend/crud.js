@@ -20,25 +20,31 @@ import { db } from "./firebase";
  */
 
 // Subscribe to a collection for real-time updates
-export const subscribeToCollection = (collectionName, callback) => {
+export const subscribeToCollection = (collectionName, callback, onError) => {
   try {
     const q = collection(db, collectionName);
-    return onSnapshot(q, (querySnapshot) => {
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      // Sort by createdAt descending
-      data.sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA;
-      });
-      
-      callback(data);
-    }, (error) => {
-      console.error(`Error subscribing to ${collectionName}: `, error);
-    });
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
+        const data = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+        // Sort by createdAt descending
+        data.sort((a, b) => {
+          const timeA = a.createdAt?.seconds || 0;
+          const timeB = b.createdAt?.seconds || 0;
+          return timeB - timeA;
+        });
+
+        callback(data);
+      },
+      (error) => {
+        console.error(`Error subscribing to ${collectionName}: `, error);
+        onError?.(error);
+      }
+    );
   } catch (error) {
     console.error(`Error setting up subscription for ${collectionName}: `, error);
+    onError?.(error);
     throw error;
   }
 };
@@ -230,7 +236,7 @@ export const userActions = {
   },
   getById: (uid) => getDocumentById("users", uid),
   getAll: () => getDocuments("users"),
-  subscribe: (callback) => subscribeToCollection("users", callback),
+  subscribe: (callback, onError) => subscribeToCollection("users", callback, onError),
   updateRole: (uid, role) => {
     const docRef = doc(db, "users", uid);
     return updateDoc(docRef, { role, updatedAt: serverTimestamp() });
@@ -245,11 +251,41 @@ export const userActions = {
   }
 };
 
-// 8. DIAGNOSTICS (TRL/CRL results)
+// 8. POTENCIALES 4TA CONVOCATORIA (empresas / proyectos para diagnóstico)
+const POTENCIALES_COLLECTION = "potenciales_4ta_convocatoria";
+
+export const companyActions = {
+  create: (data) => createDocument(POTENCIALES_COLLECTION, data),
+  getAll: () => getDocuments(POTENCIALES_COLLECTION),
+  getByUserId: async (userId) => {
+    try {
+      if (!userId) return [];
+      const q = query(collection(db, POTENCIALES_COLLECTION), where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      return data.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+    } catch (error) {
+      console.error("Error en companyActions.getByUserId:", error);
+      throw error;
+    }
+  },
+  /** Lista en tiempo real todos los documentos de la colección en Firestore */
+  subscribe: (callback, onError) =>
+    subscribeToCollection(POTENCIALES_COLLECTION, callback, onError),
+  getById: (id) => getDocumentById(POTENCIALES_COLLECTION, id),
+  update: (id, data) => updateDocument(POTENCIALES_COLLECTION, id, data),
+  delete: (id) => deleteDocument(POTENCIALES_COLLECTION, id),
+};
+
+// 9. DIAGNOSTICS (TRL/CRL results)
 export const diagnosticActions = {
   create: (data) => createDocument("diagnostics", data),
   getAll: () => getDocuments("diagnostics"),
-  subscribe: (callback) => subscribeToCollection("diagnostics", callback),
+  subscribe: (callback, onError) => subscribeToCollection("diagnostics", callback, onError),
   getByUserId: async (userId) => {
     try {
       if (!userId) {

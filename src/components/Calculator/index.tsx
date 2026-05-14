@@ -1,15 +1,29 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import Question from "./Question";
 import Results from "./Results";
+import CompanyPickerModal, { type CompanyRecord, type ProfileFromCompany } from "./CompanyPickerModal";
 import { diagnosticActions } from "@/../backend/crud";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { QUESTIONS } from "./questions";
 
+type ProfileState = { org: string; title: string; description: string; ownerName: string };
+
+const emptyProfile = (): ProfileState => ({
+  org: "",
+  title: "",
+  description: "",
+  ownerName: "",
+});
+
 const Calculator: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
-  const [profile, setProfile] = useState({ org: "", title: "", description: "" });
+  const [showCompanyModal, setShowCompanyModal] = useState(false);
+  /** Barra de progreso + formulario: solo tras elegir empresa en el modal o continuar sin cuenta */
+  const [showDiagnosisFlow, setShowDiagnosisFlow] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [profile, setProfile] = useState<ProfileState>(emptyProfile);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [diagnosisId, setDiagnosisId] = useState<string | null>(null);
@@ -26,7 +40,10 @@ const Calculator: React.FC = () => {
 
   const reset = () => {
     if (confirm("¿Estás seguro de que quieres borrar todas las respuestas?")) {
-      setProfile({ org: "", title: "", description: "" });
+      setProfile(emptyProfile());
+      setSelectedCompanyId(null);
+      setShowCompanyModal(false);
+      setShowDiagnosisFlow(false);
       const initial: Record<string, number | null> = {};
       QUESTIONS.forEach((q) => (initial[q.id] = null));
       setAnswers(initial);
@@ -82,7 +99,13 @@ const Calculator: React.FC = () => {
       const summary = calculate();
       const result = await diagnosticActions.create({
         userId: finalUserId,
-        profile,
+        companyId: selectedCompanyId || undefined,
+        profile: {
+          org: profile.org,
+          title: profile.title,
+          description: profile.description,
+          ...(profile.ownerName.trim() ? { ownerName: profile.ownerName.trim() } : {}),
+        },
         answers,
         summary,
         timestamp: new Date().toISOString()
@@ -150,8 +173,35 @@ const Calculator: React.FC = () => {
     return true;
   };
 
+  const closeCompanyModal = useCallback(() => {
+    setShowCompanyModal(false);
+  }, []);
+
   return (
     <section id="calculator" className="py-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      <CompanyPickerModal
+        open={showCompanyModal}
+        user={user}
+        authLoading={authLoading}
+        onClose={closeCompanyModal}
+        onGuestContinue={() => {
+          setShowCompanyModal(false);
+          setSelectedCompanyId(null);
+          setShowDiagnosisFlow(true);
+        }}
+        onSelectCompany={(_company: CompanyRecord, p: ProfileFromCompany) => {
+          setProfile({
+            org: p.org,
+            title: p.title,
+            description: p.description,
+            ownerName: p.ownerName,
+          });
+          setSelectedCompanyId(_company.id);
+          setShowCompanyModal(false);
+          setShowDiagnosisFlow(true);
+        }}
+      />
+
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900">
@@ -160,8 +210,36 @@ const Calculator: React.FC = () => {
           <p className="text-gray-600 max-w-2xl mx-auto">
             Evalúa el estado actual de tu proyecto en múltiples dimensiones tecnológicas y comerciales.
           </p>
+          <div className="mt-8 flex flex-col items-center gap-2">
+            {!showDiagnosisFlow && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowCompanyModal(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 text-lg font-black text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 hover:shadow-xl active:scale-[0.98]"
+                >
+                  Comenzar diagnóstico
+                </button>
+                <p className="text-xs text-gray-500 max-w-md text-center">
+                  Elige un registro de la convocatoria (iniciativa, líder, descripción adicional) o continúa sin cuenta
+                  desde el modal. El formulario aparecerá después.
+                </p>
+              </>
+            )}
+            {showDiagnosisFlow && (
+              <button
+                type="button"
+                onClick={() => setShowCompanyModal(true)}
+                className="text-sm font-bold text-blue-600 hover:text-blue-800 underline underline-offset-2"
+              >
+                Cambiar empresa / convocatoria
+              </button>
+            )}
+          </div>
         </div>
 
+        {showDiagnosisFlow && (
+          <>
         {/* Barra de Progreso */}
         <div className="mb-10">
           <div className="flex justify-between items-end mb-2">
@@ -212,6 +290,15 @@ const Calculator: React.FC = () => {
                     placeholder="Escribe una breve descripción..."
                     value={profile.description}
                     onChange={(e) => setProfile((p) => ({ ...p, description: e.target.value }))}
+                    className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-gray-700 font-medium">Nombre del propietario (Opcional)</label>
+                  <input
+                    placeholder="Ej. María García"
+                    value={profile.ownerName}
+                    onChange={(e) => setProfile((p) => ({ ...p, ownerName: e.target.value }))}
                     className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors text-black"
                   />
                 </div>
@@ -339,6 +426,8 @@ const Calculator: React.FC = () => {
           <div className="mt-12 animate-fadeInUp">
             <Results profile={profile} answers={answers} questions={QUESTIONS} diagnosisId={diagnosisId || undefined} />
           </div>
+        )}
+          </>
         )}
       </div>
 

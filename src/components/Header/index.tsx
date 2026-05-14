@@ -45,16 +45,25 @@ const Header = () => {
   };
 
   const usePathName = usePathname();
+  const isAdminView = usePathName === "/admin";
+  /** Texto blanco en barra en todas las vistas excepto admin (ahí se mantiene contraste clásico) */
+  const useHeroNavColors = !isAdminView;
 
   const menuList = (!loading && user && user.role === 'admin')
     ? [{ id: 99, title: "Admin", path: "/admin", newTab: false }, ...menuData]
     : menuData;
 
+  if (usePathName === "/signin") {
+    return null;
+  }
+
   return (
     <>
       <header
         className={`header top-6 left-1/2 -translate-x-1/2 z-50 flex w-[92%] max-w-[1200px] items-center transition-all duration-500 ease-in-out fixed rounded-[2rem] ${sticky
-          ? "py-3 bg-white/80 dark:bg-[#0A0F2D]/80 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/30 dark:border-white/10"
+          ? isAdminView
+            ? "py-3 bg-white/80 dark:bg-[#0A0F2D]/80 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/30 dark:border-white/10"
+            : "py-3 bg-[#0A0F2D]/88 dark:bg-[#0A0F2D]/80 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/10"
           : "py-5 bg-transparent"
           }`}
       >
@@ -69,8 +78,21 @@ const Header = () => {
                   <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-500">
                     <span className="text-white font-black text-xl">T</span>
                   </div>
-                  <span className="text-2xl font-black text-black dark:text-white tracking-tighter group-hover:text-primary transition-all duration-500">
-                    TRL <span className="text-primary group-hover:text-black dark:group-hover:text-white">&amp; CLR</span>
+                  <span
+                    className={`text-2xl font-black tracking-tighter transition-all duration-500 group-hover:text-primary ${useHeroNavColors
+                      ? "text-white"
+                      : "text-black dark:text-white"
+                      }`}
+                  >
+                    TRL{" "}
+                    <span
+                      className={`text-primary ${useHeroNavColors
+                        ? "group-hover:text-white"
+                        : "group-hover:text-black dark:group-hover:text-white"
+                        }`}
+                    >
+                      &amp; CLR
+                    </span>
                   </span>
                 </div>
               </Link>
@@ -83,21 +105,27 @@ const Header = () => {
                 className="ring-primary block rounded-lg px-3 py-[6px] focus:ring-2 lg:hidden"
               >
                 <span
-                  className={`relative my-1.5 block h-0.5 w-[30px] bg-black transition-all duration-300 dark:bg-white ${navbarOpen ? "top-[7px] rotate-45" : " "
+                  className={`relative my-1.5 block h-0.5 w-[30px] transition-all duration-300 ${useHeroNavColors ? "bg-white" : "bg-black dark:bg-white"
+                    } ${navbarOpen ? "top-[7px] rotate-45" : " "
                     }`}
                 />
                 <span
-                  className={`relative my-1.5 block h-0.5 w-[30px] bg-black transition-all duration-300 dark:bg-white ${navbarOpen ? "opacity-0" : " "
+                  className={`relative my-1.5 block h-0.5 w-[30px] transition-all duration-300 ${useHeroNavColors ? "bg-white" : "bg-black dark:bg-white"
+                    } ${navbarOpen ? "opacity-0" : " "
                     }`}
                 />
                 <span
-                  className={`relative my-1.5 block h-0.5 w-[30px] bg-black transition-all duration-300 dark:bg-white ${navbarOpen ? "top-[-8px] -rotate-45" : " "
+                  className={`relative my-1.5 block h-0.5 w-[30px] transition-all duration-300 ${useHeroNavColors ? "bg-white" : "bg-black dark:bg-white"
+                    } ${navbarOpen ? "top-[-8px] -rotate-45" : " "
                     }`}
                 />
               </button>
               <nav
                 id="navbarCollapse"
-                className={`navbar border-body-color/50 dark:border-body-color/20 dark:bg-dark absolute right-0 z-30 w-[250px] rounded-2xl border-[.5px] bg-white px-6 py-4 duration-300 lg:visible lg:static lg:w-auto lg:border-none lg:!bg-transparent lg:p-0 lg:opacity-100 ${navbarOpen
+                className={`navbar absolute right-0 z-30 w-[250px] rounded-2xl border-[.5px] px-6 py-4 duration-300 lg:visible lg:static lg:w-auto lg:border-none lg:!bg-transparent lg:p-0 lg:opacity-100 ${useHeroNavColors
+                  ? "border-white/20 bg-[#0A0F2D]/95 text-white backdrop-blur-md shadow-xl lg:border-transparent lg:bg-transparent lg:text-inherit lg:shadow-none lg:backdrop-blur-none"
+                  : "border-body-color/50 bg-white dark:border-body-color/20 dark:bg-dark"
+                  } ${navbarOpen
                   ? "visibility top-full mt-4 opacity-100 shadow-xl"
                   : "invisible top-[120%] opacity-0"
                   }`}
@@ -110,7 +138,9 @@ const Header = () => {
                           href={menuItem.path}
                           className={`relative flex py-2 text-[13px] font-black uppercase tracking-[0.15em] lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 transition-all duration-500 ease-in-out group ${usePathName === menuItem.path
                             ? "text-primary"
-                            : "text-dark/70 hover:text-primary dark:text-white/60 dark:hover:text-white"
+                            : useHeroNavColors
+                              ? "text-white/90 hover:text-white"
+                              : "text-dark/70 hover:text-primary dark:text-white/60 dark:hover:text-white"
                             }`}
                         >
                           {menuItem.title}
@@ -121,7 +151,10 @@ const Header = () => {
                         <div className="relative group/submenu">
                           <p
                             onClick={() => handleSubmenu(index)}
-                            className="text-dark/70 hover:text-primary dark:text-white/60 dark:hover:text-white flex cursor-pointer items-center justify-between py-2 text-[13px] font-black uppercase tracking-[0.15em] lg:mr-0 lg:inline-flex lg:px-0 lg:py-6"
+                            className={`flex cursor-pointer items-center justify-between py-2 text-[13px] font-black uppercase tracking-[0.15em] lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 ${useHeroNavColors
+                              ? "text-white/90 hover:text-white"
+                              : "text-dark/70 hover:text-primary dark:text-white/60 dark:hover:text-white"
+                              }`}
                           >
                             {menuItem.title}
                             <span className="pl-1 transition-transform group-hover/submenu:rotate-180 duration-300">
@@ -136,7 +169,10 @@ const Header = () => {
                               <Link
                                 href={submenuItem.path}
                                 key={index}
-                                className="text-dark/70 hover:text-primary block rounded-xl py-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-all hover:bg-primary/5 dark:text-white/60 dark:hover:text-white"
+                                className={`block rounded-xl py-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-all hover:bg-primary/5 ${useHeroNavColors
+                                  ? "text-white/90 hover:text-white hover:bg-white/10"
+                                  : "text-dark/70 hover:text-primary dark:text-white/60 dark:hover:text-white"
+                                  }`}
                               >
                                 {submenuItem.title}
                               </Link>
@@ -167,10 +203,17 @@ const Header = () => {
                             />
                           </div>
                           <div className="flex flex-col items-start hidden sm:flex">
-                            <span className="text-[12px] font-black text-black dark:text-white line-clamp-1 max-w-[80px] leading-none mb-1">
+                            <span
+                              className={`text-[12px] font-black line-clamp-1 max-w-[80px] leading-none mb-1 ${useHeroNavColors
+                                ? "text-white"
+                                : "text-black dark:text-white"
+                                }`}
+                            >
                               {user.displayName?.split(' ')[0] || "Usuario"}
                             </span>
-                            <div className="flex items-center gap-1 opacity-50">
+                            <div
+                              className={`flex items-center gap-1 ${useHeroNavColors ? "text-white/90 opacity-90" : "opacity-50"}`}
+                            >
                               <span className="text-[8px] uppercase font-black tracking-widest">
                                 {user.role === 'admin' ? 'Admin' : 'Pro'}
                               </span>
@@ -262,7 +305,10 @@ const Header = () => {
                       <div className="flex items-center gap-2">
                         <Link
                           href="/signin"
-                          className="text-dark hidden px-4 py-3 text-sm font-bold hover:text-primary md:block dark:text-white transition-colors"
+                          className={`hidden px-4 py-3 text-sm font-bold transition-colors md:block ${useHeroNavColors
+                            ? "text-white hover:text-white/80"
+                            : "text-dark hover:text-primary dark:text-white"
+                            }`}
                         >
                           Iniciar Sesión
                         </Link>
@@ -277,7 +323,7 @@ const Header = () => {
                   </>
                 )}
                 <div>
-                  <ThemeToggler />
+                  <ThemeToggler heroOverlay={useHeroNavColors} />
                 </div>
               </div>
             </div>

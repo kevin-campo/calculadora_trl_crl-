@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { diagnosticActions, userActions } from "@/../backend/crud";
 import { updateUserProfileInfo, logout } from "@/../backend/auth";
-import { storage } from "@/../backend/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadProfilePhoto } from "@/../backend/storage";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import Link from "next/link";
 import Image from "next/image";
@@ -180,31 +179,44 @@ const ProfilePage = () => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
+    console.log("📸 handlePhotoUpload iniciado (base64)");
+    console.log("📁 Archivo:", file.name, "Tamaño:", file.size, "Tipo:", file.type);
+    console.log("👤 Usuario ID:", user.uid);
+
     // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       addNotification("Por favor, selecciona una imagen válida", "error");
       return;
     }
 
-    // Validar tamaño (máximo 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      addNotification("La imagen es muy pesada (máximo 2MB)", "error");
+    // Validar tamaño (máximo 5MB, se comprimirá después a ~200KB base64)
+    if (file.size > 5 * 1024 * 1024) {
+      addNotification("La imagen es muy pesada (máximo 5MB)", "error");
       return;
     }
 
     setPhotoLoading(true);
     try {
-      const storageRef = ref(storage, `profiles/${user.uid}/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
+      console.log("🚀 Iniciando uploadProfilePhoto (base64)...");
+      // Usar la función de subida con compresión a base64
+      const base64Photo = await uploadProfilePhoto(file, user.uid);
+      console.log("✅ uploadProfilePhoto completado, base64 generado");
       
-      await updateUserProfileInfo(user.displayName, downloadURL);
+      console.log("🔄 Actualizando perfil con nueva foto (base64)...");
+      await updateUserProfileInfo(user.displayName, base64Photo);
+      console.log("✅ Perfil actualizado");
+      
+      console.log("🔄 Refrescando usuario...");
       await refreshUser();
+      console.log("✅ Usuario refrescado");
+      
       addNotification("Foto de perfil actualizada");
-    } catch (error) {
-      console.error("Error al subir foto:", error);
-      addNotification("Error al subir la imagen", "error");
+    } catch (error: any) {
+      console.error("❌ Error al subir foto:", error);
+      console.error("Error message:", error?.message);
+      addNotification(`Error: ${error?.message || "Error al subir la imagen"}`, "error");
     } finally {
+      console.log("🏁 Finalizando handlePhotoUpload");
       setPhotoLoading(false);
     }
   };

@@ -12,6 +12,7 @@ const Calculator: React.FC = () => {
   const [profile, setProfile] = useState({ org: "", title: "", description: "" });
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+  const [diagnosisId, setDiagnosisId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0); // 0: Profile, 1-N: Questions, N+1: Summary/Results
   const [answers, setAnswers] = useState<Record<string, number | null>>(() => {
     const initial: Record<string, number | null> = {};
@@ -39,7 +40,29 @@ const Calculator: React.FC = () => {
     const total = vals.reduce((a, b) => a + b, 0);
     const max = QUESTIONS.length * 5;
     const pct = max > 0 ? Math.round((total / max) * 100) : 0;
-    return { total, max, pct };
+
+    // Cálculo de TRL (tecnológica): tecnología, desarrollo, diseno (3 preguntas)
+    const trlAnswers = [
+      answers["tecnologia"],
+      answers["desarrollo"],
+      answers["diseno"]
+    ];
+    const trlFilled = trlAnswers.every(a => a !== null && a !== undefined);
+    const trlTotal = trlAnswers.reduce((sum, val) => sum + (val ?? 0), 0);
+    const trlAvg = trlFilled ? Math.round((trlTotal / 3) * (9/5)) : 0;
+
+    // Cálculo de CLR (comercial): competitivo, equipo, mercado, cadena (4 preguntas)
+    const clrAnswers = [
+      answers["competitivo"],
+      answers["equipo"],
+      answers["mercado"],
+      answers["cadena"]
+    ];
+    const clrFilled = clrAnswers.every(a => a !== null && a !== undefined);
+    const clrTotal = clrAnswers.reduce((sum, val) => sum + (val ?? 0), 0);
+    const clrAvg = clrFilled ? Math.round((clrTotal / 4) * (5/5)) : 0;
+
+    return { total, max, pct, trlAvg, clrAvg };
   };
 
   const saveToDatabase = async () => {
@@ -66,6 +89,7 @@ const Calculator: React.FC = () => {
       });
       console.log("Diagnóstico guardado exitosamente en DB:", result.id);
       setSaveStatus("success");
+      setDiagnosisId(result.id);
     } catch (e: any) {
       console.error("❌ ERROR CRÍTICO DE CONEXIÓN:", e);
       setSaveStatus("error");
@@ -313,7 +337,7 @@ const Calculator: React.FC = () => {
         {/* Sección de Resultados Finales (Siempre visible o condicional al final) */}
         {currentStep === QUESTIONS.length + 1 && (
           <div className="mt-12 animate-fadeInUp">
-            <Results profile={profile} answers={answers} questions={QUESTIONS} />
+            <Results profile={profile} answers={answers} questions={QUESTIONS} diagnosisId={diagnosisId || undefined} />
           </div>
         )}
       </div>

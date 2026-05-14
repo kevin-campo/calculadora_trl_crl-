@@ -187,7 +187,32 @@ export const pricingActions = {
 export const ADMIN_EMAILS = ["admin@trl-crl.com", "supervisor@trl-crl.com"];
 
 export const userActions = {
-  create: (uid, data) => {
+  getByEmail: async (email) => {
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("email", "==", email)
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        return { id: doc.id, ...doc.data() };
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting user by email:", error);
+      throw error;
+    }
+  },
+  create: async (uid, data) => {
+    // Verificar si ya existe un usuario con este email
+    if (data.email) {
+      const existingUser = await userActions.getByEmail(data.email);
+      if (existingUser && existingUser.id !== uid) {
+        throw new Error("Ya existe un usuario registrado con este correo");
+      }
+    }
+
     // Si el email está en la lista de administradores, forzamos el rol de admin
     const userData = { ...data };
     if (data.email && ADMIN_EMAILS.includes(data.email)) {
@@ -254,4 +279,70 @@ export const diagnosticActions = {
   getById: (id) => getDocumentById("diagnostics", id),
   update: (id, data) => updateDocument("diagnostics", id, data),
   delete: (id) => deleteDocument("diagnostics", id)
+};
+
+// 9. MESSAGES (Chat messages)
+export const messageActions = {
+  create: async (data) => {
+    try {
+      const docRef = await addDoc(collection(db, "messages"), {
+        ...data,
+        createdAt: serverTimestamp(),
+        read: false
+      });
+      return { id: docRef.id, ...data };
+    } catch (error) {
+      console.error("Error en create message:", error);
+      throw error;
+    }
+  },
+  getByConversation: async (conversationId) => {
+    try {
+      const q = query(
+        collection(db, "messages"),
+        where("conversationId", "==", conversationId),
+        orderBy("createdAt", "asc")
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error("Error en getByConversation:", error);
+      throw error;
+    }
+  },
+  subscribeToConversation: (conversationId, callback) => {
+    try {
+      const q = query(
+        collection(db, "messages"),
+        where("conversationId", "==", conversationId)
+      );
+      return onSnapshot(q, (querySnapshot) => {
+        const messages = querySnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        }));
+        // Ordenar en el cliente para evitar requerir índice compuesto
+        messages.sort((a, b) => {
+          const timeA = a.createdAt?.seconds || a.createdAt || 0;
+          const timeB = b.createdAt?.seconds || b.createdAt || 0;
+          return timeA - timeB;
+        });
+        callback(messages);
+      }, (error) => {
+        console.error("Error en subscribeToConversation:", error);
+      });
+    } catch (error) {
+      console.error("Error en subscribeToConversation:", error);
+      throw error;
+    }
+  },
+  markAsRead: async (messageId) => {
+    try {
+      const docRef = doc(db, "messages", messageId);
+      await updateDoc(docRef, { read: true, readAt: serverTimestamp() });
+    } catch (error) {
+      console.error("Error en markAsRead:", error);
+      throw error;
+    }
+  }
 };

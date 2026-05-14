@@ -22,6 +22,12 @@ const githubProvider = new GithubAuthProvider();
 // Registrar con Email
 export const signUpWithEmail = async (email, password, name) => {
   try {
+    // Verificar si el usuario ya existe con otro provider en Firestore
+    const existingUser = await userActions.getByEmail(email);
+    if (existingUser) {
+      throw new Error("Este correo ya está registrado. Por favor inicia sesión o usa otro correo.");
+    }
+
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
@@ -75,6 +81,12 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
+    // Verificar si el usuario ya existe con otro provider
+    const existingUser = await userActions.getByEmail(user.email);
+    if (existingUser && existingUser.id !== user.uid) {
+      throw new Error("Este correo ya está registrado con otro método de autenticación. Por favor usa el mismo método para iniciar sesión.");
+    }
+
     await userActions.create(user.uid, {
       name: user.displayName,
       email: user.email,
@@ -100,6 +112,12 @@ export const signInWithGithub = async () => {
     const result = await signInWithPopup(auth, githubProvider);
     const user = result.user;
 
+    // Verificar si el usuario ya existe con otro provider
+    const existingUser = await userActions.getByEmail(user.email);
+    if (existingUser && existingUser.id !== user.uid) {
+      throw new Error("Este correo ya está registrado con otro método de autenticación. Por favor usa el mismo método para iniciar sesión.");
+    }
+
     await userActions.create(user.uid, {
       name: user.displayName,
       email: user.email,
@@ -123,14 +141,12 @@ export const updateUserProfileInfo = async (name, photoURL) => {
   if (!user) throw new Error("No hay un usuario autenticado");
 
   try {
-    const updates = {};
-    if (name) updates.displayName = name;
-    if (photoURL) updates.photoURL = photoURL;
+    // 1. Actualizar displayName en Firebase Auth (solo si es un string normal, no base64)
+    if (name) {
+      await updateProfile(user, { displayName: name });
+    }
 
-    // 1. Actualizar en Firebase Auth
-    await updateProfile(user, updates);
-
-    // 2. Actualizar en Firestore
+    // 2. Actualizar en Firestore (incluye photoURL incluso si es base64)
     const firestoreUpdates = {};
     if (name) firestoreUpdates.name = name;
     if (photoURL) firestoreUpdates.photoURL = photoURL;

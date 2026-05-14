@@ -135,7 +135,7 @@ const DiagnosisDetailPage = () => {
                     Basado en tus respuestas, el siguiente paso crítico es <strong>{diagnosis.summary?.pct < 50 ? 'enfocarse en la protección de propiedad intelectual y prototipado mínimo' : 'estructurar acuerdos comerciales finales y certificaciones de escala'}</strong>. Te recomendamos contactar a nuestro equipo de soporte para una mentoría personalizada.
                   </p>
                   <div className="mt-4 flex gap-4">
-                    <Link href="/contact" className="text-sm font-bold bg-white text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                    <Link href={`/mentorship/${id}`} className="text-sm font-bold bg-white text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-100">
                       Hablar con un mentor
                     </Link>
                   </div>

@@ -49,6 +49,15 @@ export const db = app ? getFirestore(app) : null;
 export const auth = app ? getAuth(app) : null;
 export const storage = app ? getStorage(app) : null;
 
+// Log de diagnóstico para Storage
+if (typeof window !== "undefined") {
+  console.log("🔥 Firebase Storage inicializado:", !!storage);
+  console.log("🔥 Storage Bucket:", firebaseConfig.storageBucket || "NO CONFIGURADO");
+  if (!firebaseConfig.storageBucket) {
+    console.warn("⚠️  Firebase Storage Bucket no está configurado. La subida de archivos no funcionará.");
+  }
+}
+
 // Analytics (solo en cliente)
 export const analytics = (typeof window !== "undefined" && app)
   ? isSupported().then(yes => yes ? getAnalytics(app) : null)

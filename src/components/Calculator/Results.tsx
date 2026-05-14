@@ -1,6 +1,8 @@
 "use client";
 import React, { useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { MessageSquare, TrendingUp } from "lucide-react";
 
 // Carga dinámica de Recharts para mejorar el rendimiento inicial
 const ResponsiveContainer = dynamic(() => import("recharts").then(mod => mod.ResponsiveContainer), { ssr: false });
@@ -15,9 +17,10 @@ type Props = {
   profile: { org: string; title: string; description: string };
   answers: Record<string, number | null>;
   questions: Array<{ id: string; title: string; options: string[] }>;
+  diagnosisId?: string;
 };
 
-const Results: React.FC<Props> = ({ profile, answers, questions }) => {
+const Results: React.FC<Props> = ({ profile, answers, questions, diagnosisId }) => {
   const radarData = questions.map((q) => ({
     category: q.title,
     value: answers[q.id] ?? 0,
@@ -30,34 +33,40 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
   const max = questions.length * 5;
   const pct = max > 0 ? Math.round((total / max) * 100) : 0;
 
-  // Separar en tecnológica y comercial (primeras 4 y últimas 3)
-  const tecAnswers = [
+  // Separar en TRL (tecnológica) y CLR (comercial)
+  // TRL: tecnología, desarrollo, diseno (3 preguntas puramente técnicas)
+  const trlAnswers = [
     answers["tecnologia"],
     answers["desarrollo"],
-    answers["diseno"],
-    answers["competitivo"]
+    answers["diseno"]
   ];
-  const tecFilled = tecAnswers.every(a => a !== null && a !== undefined);
-  const tecTotal = tecAnswers.reduce((sum, val) => sum + (val ?? 0), 0);
-  const tecAvg = tecFilled ? Math.round(tecTotal / 4) : 0;
+  const trlFilled = trlAnswers.every(a => a !== null && a !== undefined);
+  const trlTotal = trlAnswers.reduce((sum, val) => sum + (val ?? 0), 0);
+  const trlAvg = trlFilled ? Math.round((trlTotal / 3) * (9/5)) : 0; // Escalar a 1-9 para TRL
 
-  const comAnswers = [
+  // CLR: competitivo, equipo, mercado, cadena (4 preguntas comerciales)
+  const clrAnswers = [
+    answers["competitivo"],
     answers["equipo"],
     answers["mercado"],
     answers["cadena"]
   ];
-  const comFilled = comAnswers.every(a => a !== null && a !== undefined);
-  const comTotal = comAnswers.reduce((sum, val) => sum + (val ?? 0), 0);
-  const comAvg = comFilled ? Math.round(comTotal / 3) : 0;
+  const clrFilled = clrAnswers.every(a => a !== null && a !== undefined);
+  const clrTotal = clrAnswers.reduce((sum, val) => sum + (val ?? 0), 0);
+  const clrAvg = clrFilled ? Math.round((clrTotal / 4) * (5/5)) : 0; // Escalar a 1-5 para CLR
 
   // Etiquetas descriptivas según nivel
   const getLevelLabel = (val: number, type: "trl" | "clr") => {
     const trlLabels: Record<number, string> = {
-      1: "Observación / Idea",
-      2: "Concepto demostrado",
-      3: "Validación inicial",
-      4: "Demostración piloto",
-      5: "Listo para comercialización",
+      1: "Investigación básica",
+      2: "Concepto tecnológico",
+      3: "Validación experimental",
+      4: "Laboratorio validado",
+      5: "Prototipo relevante",
+      6: "Demostración piloto",
+      7: "Prototipo operativo",
+      8: "Sistema completo",
+      9: "Tecnología probada",
     };
     const clrLabels: Record<number, string> = {
       1: "No preparado comercialmente",
@@ -78,6 +87,15 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
   return (
     <div className="mt-12 space-y-6">
       <div className="flex flex-wrap justify-end gap-3 print:hidden">
+        {diagnosisId && (
+          <Link
+            href={`/mentorship/${diagnosisId}`}
+            className="px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all flex items-center gap-2 active:scale-95 text-sm"
+          >
+            <MessageSquare size={20} />
+            Iniciar Mentoría
+          </Link>
+        )}
         <button
           onClick={handlePrint}
           className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 text-sm cursor-pointer"
@@ -107,11 +125,11 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
               <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Tecnológica</span>
               <h4 className="font-bold text-lg text-blue-900">Nivel TRL</h4>
               <p className="text-sm text-blue-800 font-medium leading-tight max-w-[200px]">
-                {tecFilled ? `Nivel ${tecAvg} — ${getLevelLabel(tecAvg, "trl")}` : "Pendiente"}
+                {trlFilled ? `Nivel ${trlAvg} — ${getLevelLabel(trlAvg, "trl")}` : "Pendiente"}
               </p>
             </div>
             <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-lg shadow-blue-200">
-              {tecFilled ? tecAvg : "-"}
+              {trlFilled ? trlAvg : "-"}
             </div>
           </div>
 
@@ -120,11 +138,11 @@ const Results: React.FC<Props> = ({ profile, answers, questions }) => {
               <span className="text-xs font-bold text-green-600 uppercase tracking-widest">Comercial</span>
               <h4 className="font-bold text-lg text-green-900">Nivel CLR</h4>
               <p className="text-sm text-green-800 font-medium leading-tight max-w-[200px]">
-                {comFilled ? `Nivel ${comAvg} — ${getLevelLabel(comAvg, "clr")}` : "Pendiente"}
+                {clrFilled ? `Nivel ${clrAvg} — ${getLevelLabel(clrAvg, "clr")}` : "Pendiente"}
               </p>
             </div>
             <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-green-600 text-white font-black text-2xl shadow-lg shadow-green-200">
-              {comFilled ? comAvg : "-"}
+              {clrFilled ? clrAvg : "-"}
             </div>
           </div>
         </div>

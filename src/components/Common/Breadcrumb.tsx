@@ -50,12 +50,8 @@ const Breadcrumb = ({
       {/* Background Video */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover object-center"
-        style={{ 
-          opacity: 0.6,
-          maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)'
-        }}
+        className="absolute top-0 left-0 w-full h-[100vh] object-cover object-top"
+        style={{ opacity: 0.5 }}
         muted
         loop
         playsInline

@@ -75,7 +75,7 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://cdn.sanity.io https://cdn.jsdelivr.net https://apis.google.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https://images.unsplash.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://firebasestorage.googleapis.com https://cdn.sanity.io",
+              "img-src 'self' data: blob: https://images.unsplash.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://firebasestorage.googleapis.com https://cdn.sanity.io https://www.transparenttextures.com",
               "font-src 'self' data: https://fonts.gstatic.com",
               "connect-src 'self' https://*.firebaseio.com https://*.firebasedatabase.app https://*.googleapis.com https://*.sanity.io https://cdn.sanity.io https://*.firebaseapp.com https://stream.mux.com",
               "frame-src 'self' https://www.google.com https://www.gstatic.com https://*.firebaseapp.com https://apis.google.com",

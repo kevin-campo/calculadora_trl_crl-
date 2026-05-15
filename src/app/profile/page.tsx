@@ -391,7 +391,7 @@ const ProfilePage = () => {
               <p className="text-slate-400 dark:text-blue-100/60 text-sm font-medium mb-6 relative z-10">
                 Consulta nuestra guía detallada sobre los niveles TRL y CRL para entender mejor tus resultados.
               </p>
-              <Link href="/docs" className="inline-flex items-center gap-2 text-primary dark:text-white font-black text-sm group/link relative z-10">
+              <Link href="#" className="inline-flex items-center gap-2 text-primary dark:text-white font-black text-sm group/link relative z-10">
                 Ver Documentación
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </Link>

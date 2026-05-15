@@ -1,8 +1,15 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Hls from "hls.js";
 import { motion } from "motion/react";
 import { ChevronRight } from "lucide-react";
+
+const videoSrc =
+  "https://stream.mux.com/T6oQJQ02cQ6N01TR6iHwZkKFkbepS34dkkIc9iukgy400g.m3u8";
+const posterSrc =
+  "https://image.mux.com/T6oQJQ02cQ6N01TR6iHwZkKFkbepS34dkkIc9iukgy400g/thumbnail.jpg?time=0";
 
 const Breadcrumb = ({
   pageName,
@@ -11,16 +18,48 @@ const Breadcrumb = ({
   pageName: string;
   description: string;
 }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch((e) => console.log("Auto-play prevented:", e));
+      });
+      return () => {
+        hls.destroy();
+      };
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = videoSrc;
+      video.addEventListener("loadedmetadata", () => {
+        video.play().catch((e) => console.log("Auto-play prevented:", e));
+      });
+    }
+  }, []);
 
   return (
     <section
       className="relative z-10 w-full overflow-hidden pt-36 pb-20 lg:pt-[180px] lg:pb-28"
       style={{ backgroundColor: "#0A0F2D", color: "white" }}
     >
-      {/* Dynamic Background Pattern */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-      
-      {/* Deep Overlay */}
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        style={{ opacity: 0.5 }}
+        muted
+        loop
+        playsInline
+        autoPlay
+        poster={posterSrc}
+      />
+
+      {/* Video Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0F2D]/50 to-[#0A0F2D] z-0"></div>
 
       {/* Decorative Gradients */}

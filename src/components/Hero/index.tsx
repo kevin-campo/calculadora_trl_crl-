@@ -50,6 +50,7 @@ const Hero = () => {
         muted
         loop
         playsInline
+        autoPlay
         poster={posterSrc}
       />
 

@@ -67,20 +67,20 @@ const MentorshipPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0F2D] pt-32 pb-20">
+    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0F2D] pb-20">
       {/* Dynamic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px] animate-pulse"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className="container relative z-10">
-        {/* Header */}
-        <Breadcrumb 
-          pageName="Mentorías" 
-          description="Gestiona tus procesos de mentoría y rutas de maduración tecnológica"
-        />
+      {/* Header */}
+      <Breadcrumb 
+        pageName="Mentorías" 
+        description="Gestiona tus procesos de mentoría y rutas de maduración tecnológica"
+      />
 
+      <div className="container relative z-10 mt-8">
         {/* Hero Section */}
         <div className="bg-white dark:bg-white/5 backdrop-blur-md rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-8 md:p-12 mb-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

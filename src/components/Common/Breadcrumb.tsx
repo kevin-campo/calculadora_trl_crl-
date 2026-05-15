@@ -50,7 +50,7 @@ const Breadcrumb = ({
       {/* Background Video */}
       <video
         ref={videoRef}
-        className="absolute top-0 left-0 w-full h-[100vh] object-cover object-top"
+        className="absolute top-0 left-0 w-full h-[100vh] object-cover"
         style={{ opacity: 0.5 }}
         muted
         loop

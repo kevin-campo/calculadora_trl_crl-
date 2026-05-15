@@ -218,15 +218,20 @@ const MentorshipPage = ({ params }: { params: Promise<{ diagnosisId: string }> }
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0F2D] pt-32 pb-20">
+    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0F2D] pb-20">
       {/* Dynamic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px] animate-pulse"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className="container relative z-10">
-        {/* Header */}
+      {/* Header */}
+      <Breadcrumb 
+        pageName="Mentoría y Ruta de Maduración" 
+        description="Plan personalizado para alcanzar la madurez tecnológica y comercial óptima"
+      />
+
+      <div className="container relative z-10 mt-8">
         <div className="mb-8">
           <Link
             href="/profile"
@@ -235,10 +240,6 @@ const MentorshipPage = ({ params }: { params: Promise<{ diagnosisId: string }> }
             <ArrowLeft size={20} />
             Volver al Perfil
           </Link>
-          <Breadcrumb 
-            pageName="Mentoría y Ruta de Maduración" 
-            description="Plan personalizado para alcanzar la madurez tecnológica y comercial óptima"
-          />
         </div>
 
         {/* Resumen del Diagnóstico */}
